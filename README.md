@@ -4,6 +4,7 @@ Igra se igra na pravokotni plošči  dimenzije nxm (tablici čokolade), ki je ra
 levem robu je zastrupljen. Igralec, ki poje ta košček čokolade, izgubi.
 
 ![](https://xorshammer.files.wordpress.com/2008/09/chomp.png)
+
 Opomba: Na sliki je "zastrupljen" kvadratek spodnji levi.
 
 več o tej igri najdete na:
