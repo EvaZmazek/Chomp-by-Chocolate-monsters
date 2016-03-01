@@ -12,7 +12,7 @@ Aplikacija je v enem izmed treh stanj:
     👤 človek-računalnik  
     👤 računalnik - človek  
     💻 računalnik-računalnik  
-  izbor težavnosti: 
+  izbor težavnosti:   
     😃 easy  
     🤔 medium  
     😥 hard 
