@@ -7,13 +7,12 @@ Igro Chomp dva igralca(človek ali računalnik) igrata v glavnem oknu, ki je raz
 Aplikacija je v enem izmed treh stanj:  
 
   🍫začetek:  
-    izbor igralcev: 
+  izbor igralcev:  
     👥 človek-človek  
     👤 človek-računalnik  
     👤 računalnik - človek  
     💻 računalnik-računalnik
-    
-    izbor težavnosti: 
+  izbor težavnosti: 
     😃 easy  
     🤔 medium  
     😥 hard 
@@ -24,7 +23,7 @@ Aplikacija je v enem izmed treh stanj:
   🎲 kdo je na potezi 
     
   🍫konec:  
-  prikaze podatke o zmagovalcu  
+  prikaže podatke o zmagovalcu  
 
 Prehodi med stanji:  
 ▶︎prehod iz začetka v igro:  
