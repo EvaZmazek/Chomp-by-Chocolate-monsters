@@ -11,7 +11,7 @@ Aplikacija je v enem izmed treh stanj:
     👥 človek-človek  
     👤 človek-računalnik  
     👤 računalnik - človek  
-    💻 računalnik-računalnik
+    💻 računalnik-računalnik  
   izbor težavnosti: 
     😃 easy  
     🤔 medium  
