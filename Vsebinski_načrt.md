@@ -26,14 +26,14 @@ Prehodi med stanji:
 ▶︎prehod iz igre v konec igre: sproži ga uporabniški vmesnik, ko ugotovi, da je igre konec  
 ▶︎prehod iz konca igre v začetek igre: uporabnik klikne na gumb "igraj še enkrat"  
 
-##STRUKTURA PROGRAMA (dodaj linke)
+##STRUKTURA PROGRAMA
 Program je implementiran v Pythonu 3 in sestoji iz dveh delov:  
 
--Uporabniški vmesnik: uporablja knjižnico tkinter.  
--Računalniški igralec:  
-  😃 način easy: računalnik bo izbiral svoje poteze naključno.  
-  🤔 način medium: računalnik bo izbiral svoje poteze z algoritmom minimax.  
-  😥 način hard:računalnik bo izbiral svoje poteze z algoritmom alfa-beta.  
+▶︎ Uporabniški vmesnik: uporablja knjižnico [tkinter](http://infohost.nmt.edu/tcc/help/pubs/tkinter/web/index.html).    
+▶︎ Računalniški igralec:  
+😃 način easy: računalnik bo izbiral svoje poteze naključno.  
+🤔 način medium: računalnik bo izbiral svoje poteze z algoritmom [minimax](https://en.wikipedia.org/wiki/Minimax).  
+😥 način hard:računalnik bo izbiral svoje poteze z algoritmom [alfa-beta](https://en.wikipedia.org/wiki/Alpha–beta_pruning).  
 
 ###RAZREDI
 Vsi razredi so v datoteki chomp.py, ker gre za preprosto aplikacijo.
@@ -53,7 +53,7 @@ Objekt tega razreda vsebuje trenutno stanje igre, kakor tudi njeno zgodovino. Im
 🎲 veljavne_poteze(self): vrne seznam vseh veljavnih potez  
 
 ###IGRALCI
-Razne vrste igralcev (človek, metoda nakjučje, algoritem minimax, algoritem alfa-beta) predstavimo vsakega s svojim razredom. Objekt, ki predstavlja igralca, mora imeti naslednje metode:
+Razne vrste igralcev (človek, metoda nakjučje, algoritem minimax, algoritem alfa-beta) predstavimo vsakega s svojim razredom. Objekt, ki predstavlja igralca, mora imeti naslednje metode:  
 ▶︎ __init__(self, gui): konstruktorju podamo objekt gui, s katerim lahko dostopa do uporabniškega vmesnika in stanja igre  
 ▶︎ igraj(self): GUI pokliče to metodo, ko je igralec na potezi  
 ▶︎ klik(self, i, j): GUI pokliče to metodo, če je igralec na potezi in je uporabnik kliknil polje (i,j) na čokoladi  
