@@ -39,6 +39,9 @@ class Gui():
         #Klik na polje
         self.plosca.bind("<Button-1>", self.plosca_klik)
 
+    def ime_koscka(self,i,j):
+        return 'koscek('+str(i)+','+str(j)+')'
+
     def plosca_klik(self, event):
         if event.x >= 10 and event.x<=SIRINA*100 + 10 and event.y >= 50 and event.y <= VISINA*100 + 50:
             i= (event.x -10)//100
@@ -50,6 +53,9 @@ class Gui():
             else:
                 for k in range(VISINA-j):
                     for l in range(SIRINA-i):
+#                       ime=self.ime_koscka(j+k,i+l)
+#                       print(ime)
+#                       self.plosca.itemconfig(ime, fill="blue")
                         self.koscek(j+k,i+l,'white')
                         neveljavne_poteze.add((i+k,j+l))
                         self.plosca.create_oval(i*100+20,j*100+60,i*100+25,j*100+65, fill='sienna4')
@@ -90,7 +96,7 @@ class Gui():
                     self.koscek(i,j,'sienna4')
         
         #Manjka še mnogo košèkov in tudi njigovi TAG-i
-        #Prvi je na potezi èlovek
+        #Prvi je na potezi človek
         self.napis.set("Ti si na potezi.")
         pass
 
