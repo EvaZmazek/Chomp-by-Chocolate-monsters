@@ -46,8 +46,8 @@ Razred, v katerem je definiran uporabniški vmesnik. Metode:
 
 ####Razred Igra
 Objekt tega razreda vsebuje trenutno stanje igre, kakor tudi njeno zgodovino. Ima naslednje metode:  
-🎲 povleci_potezo(self,i,j): pojej košček čokolade (i,j) in vse spodaj-desno, pri čemer je i vrstica  in j stolpec    
-🎲 stanje_igre(self,i,j): ugotovi, kakšno je trenutno stanje igre: ni konec, zmagal je Igralec_1, zmagal je Igralec_2
+🎲 povleci_potezo(self,i,j): pojej košček čokolade (i,j) in vse spodaj-desno, pri čemer je i vrstica  in j stolpec      
+🎲 stanje_igre(self,i,j): ugotovi, kakšno je trenutno stanje igre: ni konec, zmagal je Igralec_1, zmagal je Igralec_2  
 🎲razveljavi(self): vrni se v stanje pred zadnjo potezo, metodo lahko pokličemo večkrat, s tem se premikamo navzgor po igralnem drevesu.  
 🎲 na_potezi: kdo je na potezi: IGRALEC_1, IGRALEC_2 ali None  
 🎲 veljavne_poteze(self): vrne seznam vseh veljavnih potez  
