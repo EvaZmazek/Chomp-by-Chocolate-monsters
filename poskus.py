@@ -3,6 +3,59 @@ SIRINA=6
 VISINA=5
 neveljavne_poteze=set()
 kliki=set()
+IGRALEC_1 = "1"
+IGRALEC_2 = "2"
+NI_KONEC = "ni konec"
+
+######################################################################
+## Razred Igra
+
+class Igra():
+    
+    def __init__(self):
+        self.plosca=[[None for i in range(SIRINA)] for j in range(VISINA)]
+        # Ustvarimo si matriko z enakimi dimenzijami kot čokolada, v kateri
+        # si bomo zapomnili, katere koščke sta igralca že pojedla.
+        
+        self.na_potezi = IGRALEC_1 # Vedno igro odpre človek.
+        
+        self.zgogovina = []
+        # Zgodovina igre je prazna, ko igro začnemo (ne glede na to, ali
+        # smo prej že kaj igrali).
+
+    def shrani_pozicijo(self):
+        p = [self.plosca[i][:] for i in range(VISINA)]
+        self.zgodovina.append((p, self.na_potezi))
+
+    def veljavne_poteze(self):
+        poteze=[]
+        for i in range(VISINA):
+            for j in range(SIRINA):
+                if self.plosca[i][j] is None:
+                    poteze.append((i,j))
+        return poteze
+
+    def stanje_igre(self):
+        """
+        Ugotovi, kakšno je stanje igre. Vrne:
+            - IGRALEC_1, če je igre konec in je zmagal IGRALEC_1 (uporabik)
+            - IGRALEC_2, če je igre konec in je zmagal IGRALEC_2 (človek/računalnik)
+            - NI_KONEC, če igre še ni konec
+        """
+        if self.plosca[0][0] is None:
+            # Nihče še ni pojedel t.i. zastrupljenega koščka.
+            return NI_KONEC
+        else:
+            return self.na_potezi
+            # Mogoče bo treba popravit v nasprotnika, če bo metoda
+            # povleci_potezo spremenila igralca, po tem ko bo potegnila
+            # potezo.
+            
+    def povleci_potezo(self, i, j):
+        """Povleče potezo (i,j) oz. ne naredi nič, če ni veljavna.
+           Vrne stanje igre po potezi ali None, če je poteza neveljavna."""
+        # S tem se bo Živa ukvarjala jutri.
+        pass
 
 #######################################################################
 
