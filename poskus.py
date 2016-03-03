@@ -3,6 +3,9 @@ SIRINA=6
 VISINA=5
 neveljavne_poteze=set()
 kliki=set()
+
+#######################################################################
+
 class Gui():
     
     def __init__(self,master):
@@ -14,11 +17,11 @@ class Gui():
         igra_menu = Menu(master)
         menu.add_cascade(label="Igra", menu=igra_menu)
 
-        igra_menu.add_command(label="2 igralca", command=self.nova_igra)#mora bit funkcija
-        #Popravi, da bo za razlicne stile igre
-        igra_menu.add_command(label="Proti racunalniku (easy)",   command=self.nova_igra)
-        igra_menu.add_command(label="Proti racunalniku (medium)", command=self.nova_igra)
-        igra_menu.add_command(label="Proti racunalniku (hard)",   command=self.nova_igra)
+        igra_menu.add_command(label="2 igralca")#, command=lambda: self.nova_igra(Clovek))
+        # command mora bit funkcija
+        igra_menu.add_command(label="Proti racunalniku (easy)")#,   command=lambda: self.nova_igra(Nakljucje))
+        igra_menu.add_command(label="Proti racunalniku (medium)")#, command=lambda: self.nova_igra(Minimax))
+        igra_menu.add_command(label="Proti racunalniku (hard)")#,   command=#lambda: self.nova_igra(AlfaBeta))
         igra_menu.add_command(label="Izhod",                      command=master.destroy)
 
         #Naredimo polje z opisom stanja/pozicije:
@@ -29,12 +32,7 @@ class Gui():
         self.plosca = Canvas(master, width=SIRINA*100 + 20, height=VISINA*100 + 60)
         self.plosca.grid(row=1, column=0)
         
-        for i in range(VISINA+1):
-            self.plosca.create_line(10, i*100 + 50, SIRINA*100 + 10, i*100 + 50)
-        for i in range(SIRINA+1):
-            self.plosca.create_line(i*100+10, 50, i*100+10, VISINA*100 + 50)
-
-        self.nova_igra()
+        self.nova_igra()#Clovek)
         
         #Klik na polje
         self.plosca.bind("<Button-1>", self.plosca_klik)
@@ -74,12 +72,11 @@ class Gui():
         """narise koscek čokolade na (i,j)-tem polju izbrane barve"""
         return self.plosca.create_rectangle(15 + j*100, 55 + i*100, 105 + j*100, 145 + i*100, fill=barva)
 
-    def nova_igra(self):
-        """Vzpostavi zaèetno stanje."""
+    def nova_igra(self):#, Igralec_2):
+        """Vzpostavi zaèetno stanje. Igralec_1 je vedno človek."""
         #Pobrišemo vse s canvasa:
         self.plosca.delete(ALL)
         
-        """"je res treba vse še enrat napisat?"""
         for i in range(VISINA+1):
             self.plosca.create_line(10, i*100 + 50, SIRINA*100 + 10, i*100 + 50) 
         for i in range(SIRINA+1):
@@ -95,7 +92,6 @@ class Gui():
                 else:
                     self.koscek(i,j,'sienna4')
         
-        #Manjka še mnogo košèkov in tudi njigovi TAG-i
         #Prvi je na potezi človek
         self.napis.set("Ti si na potezi.")
         pass
