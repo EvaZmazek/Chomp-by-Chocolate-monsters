@@ -40,7 +40,7 @@ Vsi razredi so v datoteki chomp.py, ker gre za preprosto aplikacijo.
 
 ####Razred GUI(preuredi)
 Razred, v katerem je definiran uporabniški vmesnik. Metode:  
-🎲 nova_igra(self, Igralec_1, Igralec_2): začni igrati igro z danimi igralci  
+🎲 nova_igra(self, Igralec_1, Igralec_2): začni igrati igro z danimi igralci, kjer izbor igralcev pomeni tudi način igre  
 🎲 koncaj_igro(self, zmagovalec): končaj igro z danim zmagovalecem  
 🎲 povleci_potezo(self, i, j): povleci potezo (i,j)
 
