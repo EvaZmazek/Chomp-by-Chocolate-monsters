@@ -7,6 +7,16 @@ IGRALEC_1 = "1"
 IGRALEC_2 = "2"
 NI_KONEC = "ni konec"
 
+
+
+def nasprotnik(igralec):
+    if igralec == IGRALEC_1:
+        return IGRALEC_2
+    else:
+        return IGRALEC_1
+
+    
+
 ######################################################################
 ## Razred Igra
 
@@ -53,9 +63,28 @@ class Igra():
             
     def povleci_potezo(self, i, j):
         """Povleče potezo (i,j) oz. ne naredi nič, če ni veljavna.
-           Vrne stanje igre po potezi ali None, če je poteza neveljavna."""
-        # S tem se bo Živa ukvarjala jutri.
-        pass
+           Vrne stanje_igre po potezi ali None, če je poteza neveljavna."""
+        if self.plosca[i][j] is not None:
+            #povleči hočemo neveljavno potezo
+            return None
+        else:
+            self.shrani_pozicijo()
+            polnilo=self.na_potezi
+            for a in range(i,SIRINA):
+                for b in range(j,VISINA):
+                    self.plosca[a][b] = polnilo
+                    # Na mesta v matriki plosca, ki jih poje igralec 1 (ali 2),
+                    # vpišemo 1-ke (oz. 2-ke)
+            stanje=self.stanje_igre()
+            # Če še ni konec igre, moramo zamenjati igralca, ki je na vrsti,
+            # v vsakem primeru pa nato vrniti stanje igre
+            if stanje == NI_KONEC:
+                self.na_potezi = nasprotnik(self.na_potezi)
+            else:
+                self.na_potezi = None
+                # Igre je konec, nihče ne sme več narediti poteze.
+            return stanje
+        
 
 #######################################################################
 
@@ -136,7 +165,12 @@ class Gui():
             self.plosca.create_line(i*100+10, 50, i*100+10, VISINA*100 + 50)
 
         #Ustvarimo novo igro
-        #self.igra = Igra()
+        self.igra = Igra()
+
+        #Določimo igralce
+        #self.igralec_1 = Clovek(self)
+        #self.igralec_2 = Igralec_2(self)
+        
         #Narišemo polje:
         for i in range(VISINA):
             for j in range(SIRINA):
