@@ -6,7 +6,7 @@ kliki=set()
 IGRALEC_1 = "1"
 IGRALEC_2 = "2"
 NI_KONEC = "ni konec"
-
+koscki=[[None for i in range(VISINA)] for j in range(SIRINA)]
 
 
 def nasprotnik(igralec):
@@ -147,10 +147,10 @@ class Gui():
             else:
                 for k in range(VISINA-j):
                     for l in range(SIRINA-i):
-#                       ime=self.ime_koscka(j+k,i+l)
-#                       print(ime)
-#                       self.plosca.itemconfig(ime, fill="blue")
-                        self.koscek(j+k,i+l,'white')
+                        if koscki[i+l][j]!=None:
+                            self.plosca.delete(koscki[i+l][j+k])
+                        else:
+                            continue
                         neveljavne_poteze.add((i+k,j+l))
                         self.plosca.create_oval(i*100+20,j*100+60,i*100+25,j*100+65, fill='sienna4')
                         self.plosca.create_oval(i*100+30,j*100+70,i*100+35,j*100+75, fill='sienna4')
@@ -189,9 +189,9 @@ class Gui():
         for i in range(VISINA):
             for j in range(SIRINA):
                 if i==0 and j==0:
-                    self.plosca.create_rectangle(15, 55 , 105, 145, fill='red')
+                    self.koscek(0,0,'red')
                 else:
-                    self.koscek(i,j,'sienna4')
+                    koscki[j][i]=self.koscek(i,j,'sienna4')
         
         #Prvi je na potezi človek
         self.napis.set("Ti si na potezi.")
