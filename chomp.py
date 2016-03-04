@@ -194,6 +194,33 @@ class Gui():
         self.napis.set("Ti si na potezi.")
         pass
 
+    def povleci_potezo(self, i, j):
+        #Povlečemo potezo v razredu Igra. Le-ta spremeni, kdo naredi potezo, zato si moramo to zapomniti na začetku.
+        igralec = self.igra.na_potezi
+        stanje = self.igra.povleci_potezo(i,j) # Ta metoda vrača stanje igre po potezi oz. None, če je neveljavna.
+        if stanje is None:
+            pass
+        else:
+            # Poteza je veljavna. V igri smo jo že potegnili, zdaj moramo spremeniti še prikaz.
+            self.pobrisi(i,j)
+            if stanje == NI_KONEC:
+                # Potezo ima naslednji igralec. To moramo povedati na zaslonu in klicati metodo, da bo igral.
+                if self.igra.na_potezi == IGRALEC_1:
+                    self.napis.set("Na potezi je 1. igralec.")
+                    self.igralec_1.igraj()
+                elif self.igra.na_potezi == IGRALEC_2:
+                    self.napis.set("Na potezi je 2. igralec.")
+                    self.igralec_2.igraj()
+            else:
+                # stanje != NI_KONEC -> Igre je konec
+                self.koncaj_igro()
+
+    def pobrisi(self,i,j):
+        pass
+
+    def koncaj_igro(self):
+        pass
+
 
 
 #####################################################
