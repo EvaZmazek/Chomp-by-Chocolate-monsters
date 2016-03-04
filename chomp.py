@@ -133,9 +133,6 @@ class Gui():
         #Klik na polje
         self.plosca.bind("<Button-1>", self.plosca_klik)
 
-    def ime_koscka(self,i,j):
-        return 'koscek('+str(i)+','+str(j)+')'
-
     def plosca_klik(self, event):
         if event.x >= 10 and event.x<=SIRINA*100 + 10 and event.y >= 50 and event.y <= VISINA*100 + 50:
             i= (event.x -10)//100
