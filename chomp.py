@@ -83,8 +83,22 @@ class Igra():
             else:
                 self.na_potezi = None
                 # Igre je konec, nihče ne sme več narediti poteze.
-            return stanje
-        
+            return stanje                
+
+#######################################################################
+## Človek:
+
+class Clovek():
+    def __init__(self, gui):
+        self.gui = gui
+
+    def igraj(self):
+        #Čakamo na to, da igralec klikne na ploščo
+        pass
+
+    def klik(self, i, j):
+        self.gui.povleci_potezo(i, j)
+        # povleci_potezo je tu metoda v razredu Gui(), ki kliče metodo povleci_potezo v razredu Igra()         
 
 #######################################################################
 
@@ -114,7 +128,7 @@ class Gui():
         self.plosca = Canvas(master, width=SIRINA*100 + 20, height=VISINA*100 + 60)
         self.plosca.grid(row=1, column=0)
         
-        self.nova_igra()#Clovek)
+        self.nova_igra(Clovek)
         
         #Klik na polje
         self.plosca.bind("<Button-1>", self.plosca_klik)
@@ -154,7 +168,7 @@ class Gui():
         """narise koscek čokolade na (i,j)-tem polju izbrane barve"""
         return self.plosca.create_rectangle(15 + j*100, 55 + i*100, 105 + j*100, 145 + i*100, fill=barva)
 
-    def nova_igra(self):#, Igralec_2):
+    def nova_igra(self, Igralec_2):
         """Vzpostavi zaèetno stanje. Igralec_1 je vedno človek."""
         #Pobrišemo vse s canvasa:
         self.plosca.delete(ALL)
@@ -168,8 +182,8 @@ class Gui():
         self.igra = Igra()
 
         #Določimo igralce
-        #self.igralec_1 = Clovek(self)
-        #self.igralec_2 = Igralec_2(self)
+        self.igralec_1 = Clovek(self)
+        self.igralec_2 = Igralec_2(self)
         
         #Narišemo polje:
         for i in range(VISINA):
