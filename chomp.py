@@ -6,8 +6,6 @@ kliki=set()
 IGRALEC_1 = "1"
 IGRALEC_2 = "2"
 NI_KONEC = "ni konec"
-koscki=[[None for i in range(VISINA)] for j in range(SIRINA)]
-
 
 def nasprotnik(igralec):
     if igralec == IGRALEC_1:
@@ -23,7 +21,7 @@ def nasprotnik(igralec):
 class Igra():
     
     def __init__(self):
-        self.plosca=[[None for i in range(SIRINA)] for j in range(VISINA)]
+        self.koscki=[[None for i in range(SIRINA)] for j in range(VISINA)]
         # Ustvarimo si matriko z enakimi dimenzijami kot čokolada, v kateri
         # si bomo zapomnili, katere koščke sta igralca že pojedla.
         
@@ -34,14 +32,14 @@ class Igra():
         # smo prej že kaj igrali).
 
     def shrani_pozicijo(self):
-        p = [self.plosca[i][:] for i in range(VISINA)]
+        p = [self.koscki[i][:] for i in range(VISINA)]
         self.zgodovina.append((p, self.na_potezi))
 
     def veljavne_poteze(self):
         poteze=[]
         for i in range(VISINA):
             for j in range(SIRINA):
-                if self.plosca[i][j] is None:
+                if self.koscki[i][j] is None:
                     poteze.append((i,j))
         return poteze
 
@@ -52,7 +50,7 @@ class Igra():
             - IGRALEC_2, če je igre konec in je zmagal IGRALEC_2 (človek/računalnik)
             - NI_KONEC, če igre še ni konec
         """
-        if self.plosca[0][0] is None:
+        if self.koscki[0][0] is None:
             # Nihče še ni pojedel t.i. zastrupljenega koščka.
             return NI_KONEC
         else:
@@ -64,7 +62,7 @@ class Igra():
     def povleci_potezo(self, i, j):
         """Povleče potezo (i,j) oz. ne naredi nič, če ni veljavna.
            Vrne stanje_igre po potezi ali None, če je poteza neveljavna."""
-        if self.plosca[i][j] is not None:
+        if self.koscki[i][j] is not None:
             #povleči hočemo neveljavno potezo
             return None
         else:
@@ -72,7 +70,7 @@ class Igra():
             polnilo=self.na_potezi
             for a in range(i,SIRINA):
                 for b in range(j,VISINA):
-                    self.plosca[a][b] = polnilo
+                    self.koscki[a][b] = polnilo
                     # Na mesta v matriki plosca, ki jih poje igralec 1 (ali 2),
                     # vpišemo 1-ke (oz. 2-ke)
             stanje=self.stanje_igre()
@@ -105,6 +103,7 @@ class Clovek():
 class Gui():
     
     def __init__(self,master):
+        self.koscki=[[None for i in range(VISINA)] for j in range(SIRINA)]
         #Glavni menu:
         menu = Menu(master)
         master.config(menu=menu)
@@ -144,8 +143,8 @@ class Gui():
             else:
                 for k in range(VISINA-j):
                     for l in range(SIRINA-i):
-                        if koscki[i+l][j]!=None:
-                            self.plosca.delete(koscki[i+l][j+k])
+                        if self.koscki[i+l][j]!=None:
+                            self.plosca.delete(self.koscki[i+l][j+k])
                         else:
                             continue
                         neveljavne_poteze.add((i+k,j+l))
@@ -188,7 +187,7 @@ class Gui():
                 if i==0 and j==0:
                     self.koscek(0,0,'red')
                 else:
-                    koscki[j][i]=self.koscek(i,j,'sienna4')
+                    self.koscki[j][i]=self.koscek(i,j,'sienna4')
         
         #Prvi je na potezi človek
         self.napis.set("Ti si na potezi.")
