@@ -209,27 +209,28 @@ class Gui():
     def pobrisi(self,i,j):
         if i==0 and j==0:
             self.napis.set('raje pojej nezastrupljen košček čokolade')
-        elif self.igra.koscki[j][i] is not None:
+            #print("Ne brišem.")
+        elif self.igra.koscki[j][i] is None:
             self.napis.set('ups, ta košček čokolade je nekdo že pojedel')
+            #print("Ne brišem, ker me je baje nekdo prehitel.")
         else:
             for k in range(VISINA-j):
                 for l in range(SIRINA-i):
-                    if self.koscki[j][i+l] is not None:
-                            self.plosca.delete(self.koscki[j+k][i+l])
-                    else:
-                        continue
+                    self.koscek(j+k,i+l,'white')
+                    #self.plosca.delete(self.koscki[j+k][i+l])
                     """nariše drobtine"""
-                    self.plosca.create_oval(i*100+20,j*100+60,i*100+25,j*100+65, fill='sienna4')
-                    self.plosca.create_oval(i*100+30,j*100+70,i*100+35,j*100+75, fill='sienna4')
-                    self.plosca.create_oval(i*100+20,j*100+70,i*100+25,j*100+75, fill='sienna4')
-                    self.plosca.create_oval(i*100+20,j*100+80,i*100+25,j*100+85, fill='sienna4')
-                    self.plosca.create_oval(i*100+30,j*100+60,i*100+35,j*100+65, fill='sienna4')
-                    self.plosca.create_oval(i*100+40,j*100+60,i*100+45,j*100+65, fill='sienna4')
+            self.plosca.create_oval(i*100+20,j*100+60,i*100+25,j*100+65, fill='sienna4')
+            self.plosca.create_oval(i*100+30,j*100+70,i*100+35,j*100+75, fill='sienna4')
+            self.plosca.create_oval(i*100+20,j*100+70,i*100+25,j*100+75, fill='sienna4')
+            self.plosca.create_oval(i*100+20,j*100+80,i*100+25,j*100+85, fill='sienna4')
+            self.plosca.create_oval(i*100+30,j*100+60,i*100+35,j*100+65, fill='sienna4')
+            self.plosca.create_oval(i*100+40,j*100+60,i*100+45,j*100+65, fill='sienna4')
             kliki.add((i,j))
         return kliki
 
     def koncaj_igro(self):
-        pass
+        self.napis.set("Igre je konec. Zmagal je {0}. igralec".format(nasprotnik(self.igra.zgodovina[-1][1])))
+        #pass
 
 
 
