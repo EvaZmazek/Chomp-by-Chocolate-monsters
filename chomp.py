@@ -1,5 +1,5 @@
 from tkinter import *
-SIRINA=6
+SIRINA=7
 VISINA=5
 neveljavne_poteze=set()
 kliki=set()
@@ -27,19 +27,21 @@ class Igra():
         
         self.na_potezi = IGRALEC_1 # Vedno igro odpre človek.
         
-        self.zgogovina = []
+        self.zgodovina = []
         # Zgodovina igre je prazna, ko igro začnemo (ne glede na to, ali
         # smo prej že kaj igrali).
 
     def shrani_pozicijo(self):
         p = [self.koscki[i][:] for i in range(VISINA)]
         self.zgodovina.append((p, self.na_potezi))
+        #print("Izpisujem zgodovino:")
+        #print(self.zgodovina)
 
     def veljavne_poteze(self):
         poteze=[]
-        for i in range(VISINA):
-            for j in range(SIRINA):
-                if self.koscki[i][j] is None:
+        for j in range(VISINA):
+            for i in range(SIRINA):
+                if self.koscki[j][i] is None:
                     poteze.append((i,j))
         return poteze
 
@@ -62,14 +64,14 @@ class Igra():
     def povleci_potezo(self, i, j):
         """Povleče potezo (i,j) oz. ne naredi nič, če ni veljavna.
            Vrne stanje_igre po potezi ali None, če je poteza neveljavna."""
-        if self.koscki[i][j] is not None:
+        if self.koscki[j][i] is not None:
             #povleči hočemo neveljavno potezo
             return None
         else:
             self.shrani_pozicijo()
             polnilo=self.na_potezi
-            for a in range(i,SIRINA):
-                for b in range(j,VISINA):
+            for b in range(i,SIRINA):
+                for a in range(j,VISINA):
                     self.koscki[a][b] = polnilo
                     # Na mesta v matriki plosca, ki jih poje igralec 1 (ali 2),
                     # vpišemo 1-ke (oz. 2-ke)
@@ -103,7 +105,7 @@ class Clovek():
 class Gui():
     
     def __init__(self,master):
-        self.koscki=[[None for i in range(VISINA)] for j in range(SIRINA)]
+        self.koscki=[[None for i in range(SIRINA)] for j in range(VISINA)]
         #Glavni menu:
         menu = Menu(master)
         master.config(menu=menu)
@@ -136,26 +138,15 @@ class Gui():
         if event.x >= 10 and event.x<=SIRINA*100 + 10 and event.y >= 50 and event.y <= VISINA*100 + 50:
             i= (event.x -10)//100
             j= (event.y - 50)//100
-            if i==0 and j==0:
-                self.napis.set('raje pojej nezastrupljen košček čokolade')
-            elif (i,j) in neveljavne_poteze:
-                self.napis.set('ups, ta košček čokolade je nekdo že pojedel')
+
+#DANES--------
+            if self.igra.na_potezi == IGRALEC_1:
+                self.igralec_1.klik(i,j)
+            elif self.igra.na_potezi == IGRALEC_2:
+                self.igralec_2.klik(i,j)
             else:
-                for k in range(VISINA-j):
-                    for l in range(SIRINA-i):
-                        if self.koscki[i+l][j]!=None:
-                            self.plosca.delete(self.koscki[i+l][j+k])
-                        else:
-                            continue
-                        neveljavne_poteze.add((i+k,j+l))
-                        self.plosca.create_oval(i*100+20,j*100+60,i*100+25,j*100+65, fill='sienna4')
-                        self.plosca.create_oval(i*100+30,j*100+70,i*100+35,j*100+75, fill='sienna4')
-                        self.plosca.create_oval(i*100+20,j*100+70,i*100+25,j*100+75, fill='sienna4')
-                        self.plosca.create_oval(i*100+20,j*100+80,i*100+25,j*100+85, fill='sienna4')
-                        self.plosca.create_oval(i*100+30,j*100+60,i*100+35,j*100+65, fill='sienna4')
-                        self.plosca.create_oval(i*100+40,j*100+60,i*100+45,j*100+65, fill='sienna4')
-                kliki.add((i,j))
-            return kliki
+ #                nihce ni na potezi 
+                pass
     
         else:
             self.napis.set('neveljavna poteza')
@@ -187,7 +178,7 @@ class Gui():
                 if i==0 and j==0:
                     self.koscek(0,0,'red')
                 else:
-                    self.koscki[j][i]=self.koscek(i,j,'sienna4')
+                    self.koscki[i][j]=self.koscek(i,j,'sienna4')
         
         #Prvi je na potezi človek
         self.napis.set("Ti si na potezi.")
@@ -198,10 +189,11 @@ class Gui():
         igralec = self.igra.na_potezi
         stanje = self.igra.povleci_potezo(i,j) # Ta metoda vrača stanje igre po potezi oz. None, če je neveljavna.
         if stanje is None:
-            pass
+            self.napis.set("Ta poteza ni veljavna.")
         else:
             # Poteza je veljavna. V igri smo jo že potegnili, zdaj moramo spremeniti še prikaz.
             self.pobrisi(i,j)
+            #print("Klical sem pobrisi({0},{1})".format(i,j))
             if stanje == NI_KONEC:
                 # Potezo ima naslednji igralec. To moramo povedati na zaslonu in klicati metodo, da bo igral.
                 if self.igra.na_potezi == IGRALEC_1:
@@ -215,7 +207,26 @@ class Gui():
                 self.koncaj_igro()
 
     def pobrisi(self,i,j):
-        pass
+        if i==0 and j==0:
+            self.napis.set('raje pojej nezastrupljen košček čokolade')
+        elif self.igra.koscki[j][i] is not None:
+            self.napis.set('ups, ta košček čokolade je nekdo že pojedel')
+        else:
+            for k in range(VISINA-j):
+                for l in range(SIRINA-i):
+                    if self.koscki[j][i+l] is not None:
+                            self.plosca.delete(self.koscki[j+k][i+l])
+                    else:
+                        continue
+                    """nariše drobtine"""
+                    self.plosca.create_oval(i*100+20,j*100+60,i*100+25,j*100+65, fill='sienna4')
+                    self.plosca.create_oval(i*100+30,j*100+70,i*100+35,j*100+75, fill='sienna4')
+                    self.plosca.create_oval(i*100+20,j*100+70,i*100+25,j*100+75, fill='sienna4')
+                    self.plosca.create_oval(i*100+20,j*100+80,i*100+25,j*100+85, fill='sienna4')
+                    self.plosca.create_oval(i*100+30,j*100+60,i*100+35,j*100+65, fill='sienna4')
+                    self.plosca.create_oval(i*100+40,j*100+60,i*100+45,j*100+65, fill='sienna4')
+            kliki.add((i,j))
+        return kliki
 
     def koncaj_igro(self):
         pass
