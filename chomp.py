@@ -119,7 +119,23 @@ class Nakljucje():
 
     def klik(self, i, j):
         pass
-        # povleci_potezo je tu metoda v razredu Gui(), ki kliče metodo povleci_potezo v razredu Igra() 
+        # povleci_potezo je tu metoda v razredu Gui(), ki kliče metodo povleci_potezo v razredu Igra()
+
+#######################################################################
+## Minimax:
+class Minimax():
+    def __init__(self,gui):
+        self.gui = gui
+
+    def igraj(self):
+        pass
+
+    def vrednost_pozicije(self):
+        pass
+
+    def klik(self, i, j):
+        pass
+        # povleci_potezo je tu metoda v razredu Gui(), ki kliče metodo povleci_potezo v razredu Igra()
 
 #######################################################################
 
