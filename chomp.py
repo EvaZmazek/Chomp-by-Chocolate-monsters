@@ -1,8 +1,7 @@
 from tkinter import *
+from random import *
 SIRINA=7
 VISINA=5
-neveljavne_poteze=set()
-kliki=set()
 IGRALEC_1 = "1"
 IGRALEC_2 = "2"
 NI_KONEC = "ni konec"
@@ -101,6 +100,28 @@ class Clovek():
         # povleci_potezo je tu metoda v razredu Gui(), ki kliče metodo povleci_potezo v razredu Igra()         
 
 #######################################################################
+## Naključje:
+class Nakljucje():
+    def __init__(self, gui):
+        self.gui = gui
+
+    def igraj(self):
+        i,j=self.zrebaj()
+        self.gui.povleci_potezo(i,j)
+
+    def zrebaj(self):
+        seznam=self.gui.igra.veljavne_poteze()
+        if len(seznam)>1:
+            novseznam=seznam[1:]
+            return choice(novseznam)
+        else:
+            return seznam[0]
+
+    def klik(self, i, j):
+        pass
+        # povleci_potezo je tu metoda v razredu Gui(), ki kliče metodo povleci_potezo v razredu Igra() 
+
+#######################################################################
 
 class Gui():
     
@@ -114,9 +135,9 @@ class Gui():
         igra_menu = Menu(master)
         menu.add_cascade(label="Igra", menu=igra_menu)
 
-        igra_menu.add_command(label="2 igralca")#, command=lambda: self.nova_igra(Clovek))
+        igra_menu.add_command(label="2 igralca",command=lambda: self.nova_igra(Clovek))
         # command mora bit funkcija
-        igra_menu.add_command(label="Proti racunalniku (easy)")#,   command=lambda: self.nova_igra(Nakljucje))
+        igra_menu.add_command(label="Proti racunalniku (easy)",command=lambda: self.nova_igra(Nakljucje))
         igra_menu.add_command(label="Proti racunalniku (medium)")#, command=lambda: self.nova_igra(Minimax))
         igra_menu.add_command(label="Proti racunalniku (hard)")#,   command=#lambda: self.nova_igra(AlfaBeta))
         igra_menu.add_command(label="Izhod",                      command=master.destroy)
@@ -138,8 +159,6 @@ class Gui():
         if event.x >= 10 and event.x<=SIRINA*100 + 10 and event.y >= 50 and event.y <= VISINA*100 + 50:
             i= (event.x -10)//100
             j= (event.y - 50)//100
-
-#DANES--------
             if self.igra.na_potezi == IGRALEC_1:
                 self.igralec_1.klik(i,j)
             elif self.igra.na_potezi == IGRALEC_2:
@@ -156,6 +175,7 @@ class Gui():
         return self.plosca.create_rectangle(15 + j*100, 55 + i*100, 105 + j*100, 145 + i*100, fill=barva)
 
     def nova_igra(self, Igralec_2):
+        print('zaganjam novo igro')
         """Vzpostavi zaèetno stanje. Igralec_1 je vedno človek."""
         #Pobrišemo vse s canvasa:
         self.plosca.delete(ALL)
@@ -216,8 +236,8 @@ class Gui():
         else:
             for k in range(VISINA-j):
                 for l in range(SIRINA-i):
-                    self.koscek(j+k,i+l,'white')
-                    #self.plosca.delete(self.koscki[j+k][i+l])
+                    if self.koscki[j][i+l]!=None:
+                            self.plosca.delete(self.koscki[j+k][i+l])
                     """nariše drobtine"""
             self.plosca.create_oval(i*100+20,j*100+60,i*100+25,j*100+65, fill='sienna4')
             self.plosca.create_oval(i*100+30,j*100+70,i*100+35,j*100+75, fill='sienna4')
@@ -225,8 +245,6 @@ class Gui():
             self.plosca.create_oval(i*100+20,j*100+80,i*100+25,j*100+85, fill='sienna4')
             self.plosca.create_oval(i*100+30,j*100+60,i*100+35,j*100+65, fill='sienna4')
             self.plosca.create_oval(i*100+40,j*100+60,i*100+45,j*100+65, fill='sienna4')
-            kliki.add((i,j))
-        return kliki
 
     def koncaj_igro(self):
         self.napis.set("Igre je konec. Zmagal je {0}. igralec".format(nasprotnik(self.igra.zgodovina[-1][1])))
