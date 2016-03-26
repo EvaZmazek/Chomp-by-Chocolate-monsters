@@ -29,13 +29,13 @@ def polepsaj(zap, i, j):
     if (i,j) == (0,0):
         return [0]
     else:
-        novo = zap
+        novo = [x for x in zap]
         for indeks in range(i, len(novo)):
             stara_vr = novo[indeks]
             #print(indeks)
             novo[indeks] = min(stara_vr, j)
         novo = [x for x in novo if x != 0]
-        print ("Izpisujem zaporedje po potezi ({0}, {1}): {2}".format(i,j,novo))
+        #print ("Izpisujem zaporedje po potezi ({0}, {1}): {2}".format(i,j,novo))
         return novo
 
 ######################################################################
@@ -57,7 +57,6 @@ class Igra():
 
     def shrani_pozicijo(self):
         zap=self.zaporedje
-#        p = [self.koscki[i][:] for i in range(VISINA)]
         self.zgodovina.append((zap, self.na_potezi))
         #print("Izpisujem zgodovino:")
         #print(self.zgodovina)
@@ -73,8 +72,6 @@ class Igra():
         for j in range(len(self.zaporedje)):
             for i in range(self.zaporedje[j]):
                 poteze.append((j,i))
-                #if self.zaporedje[i]>j:#!!!!!!!!!!!!!!!!!!!!!!!!!!
-                #    poteze.append((i,j))
         return poteze
 
     def stanje_igre(self):
@@ -100,14 +97,11 @@ class Igra():
             #povleči hočemo neveljavno potezo
             assert False, "To je neveljavna poteza"
             #return None
-        else:            
+        else:
+            # Pozicijo zapišemo v zgodovino:
             self.shrani_pozicijo()
-##            polnilo=self.na_potezi
-##            for b in range(i,SIRINA):
-##                for a in range(j,VISINA):
-##                    self.koscki[a][b] = polnilo
-##                    # Na mesta v matriki plosca, ki jih poje igralec 1 (ali 2),
-##                    # vpišemo 1-ke (oz. 2-ke)
+            # Spremenimo self.zaporedje, ker povlečemo potezo in se pozicija
+            # spremeni:
             novi=polepsaj(self.zaporedje, i, j)
             self.zaporedje = novi
             stanje=self.stanje_igre()
