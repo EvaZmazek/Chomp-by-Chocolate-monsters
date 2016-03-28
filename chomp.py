@@ -329,7 +329,7 @@ class Gui():
         igra_menu.add_command(label="2 igralca",command=lambda: self.nova_igra(Clovek(self)))
         # command mora bit funkcija
         igra_menu.add_command(label="Proti racunalniku (easy)",command=lambda: self.nova_igra(Racunalnik(self, Nakljucje(self))))
-        igra_menu.add_command(label="Proti racunalniku (hard)", command=lambda: self.nova_igra(Racunalnik(self, Minimax(self))))
+        igra_menu.add_command(label="Proti racunalniku (hard)")#, command=lambda: self.nova_igra(Racunalnik(self, Minimax(self))))
         igra_menu.add_command(label="Izhod",                      command=master.destroy)
 
         #Naredimo polje z opisom stanja/pozicije:
