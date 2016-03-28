@@ -181,9 +181,6 @@ class Nakljucje():
         self.poteza = None # tuple!!
         self.prekinitev = False
 
-    ZMAGA = 10000
-    NESKONCNO = ZMAGA + 1
-
     def izracunaj_potezo(self, igra):
         self.igra = igra
         self.prekinitev = False
@@ -198,7 +195,6 @@ class Nakljucje():
             
 
     def nakljucje(self):
-        #self.igra = igra
         if self.prekinitev:
             logging.debug("Nakljucje prekinja")
             return (None, 0) # Pri nakljucju vrednost poteze ni pomembna.
@@ -213,8 +209,6 @@ class Nakljucje():
             return (self.zrebaj(), 0)
         else:
             assert False, "Nakljucje: nedefinirano stanje igre"
-        #self.poteza = self.zrebaj() # tuple!!
-        #self.gui.povleci_potezo(i,j)
 
     def zrebaj(self):
         seznam=self.gui.igra.veljavne_poteze()
@@ -236,6 +230,10 @@ class Minimax():
         self.igra = None # objekt, ki opisuje igro
         # Verjetno ne bova potrebovali: self.jaz = IGRALEC_2
         self.poteza = None # sem shrani izračunano potezo
+
+
+    ZMAGA = 10000
+    NESKONCNO = ZMAGA + 1
 
     def prekini(self):
         self.prekinitev = True
@@ -279,8 +277,7 @@ class Gui():
         igra_menu.add_command(label="2 igralca",command=lambda: self.nova_igra(Clovek(self)))
         # command mora bit funkcija
         igra_menu.add_command(label="Proti racunalniku (easy)",command=lambda: self.nova_igra(Racunalnik(self, Nakljucje(self))))
-        igra_menu.add_command(label="Proti racunalniku (medium)", command=lambda: self.nova_igra(Racunalnik(self, Minimax(self))))
-        igra_menu.add_command(label="Proti racunalniku (hard)")#,   command=#lambda: self.nova_igra(AlfaBeta))
+        igra_menu.add_command(label="Proti racunalniku (hard)", command=lambda: self.nova_igra(Racunalnik(self, Minimax(self))))
         igra_menu.add_command(label="Izhod",                      command=master.destroy)
 
         #Naredimo polje z opisom stanja/pozicije:
@@ -368,23 +365,7 @@ class Gui():
                 self.koncaj_igro()
 
     def pobrisi(self,i,j):
-##        if i==0 and j==0:
-##            self.napis.set('raje pojej nezastrupljen košček čokolade')
-##        elif self.igra.koscki[j][i] is None:
-##            self.napis.set('ups, ta košček čokolade je nekdo že pojedel')
-##        else:
-##            for k in range(VISINA-j):
-##                for l in range(SIRINA-i):
-##                    if self.koscki[j][i+l]!=None:
-##                            self.plosca.delete(self.koscki[j+k][i+l])
-##                    """nariše drobtine"""
-##            self.plosca.create_oval(i*100+20,j*100+60,i*100+25,j*100+65, fill='sienna4')
-##            self.plosca.create_oval(i*100+30,j*100+70,i*100+35,j*100+75, fill='sienna4')
-##            self.plosca.create_oval(i*100+20,j*100+70,i*100+25,j*100+75, fill='sienna4')
-##            self.plosca.create_oval(i*100+20,j*100+80,i*100+25,j*100+85, fill='sienna4')
-##            self.plosca.create_oval(i*100+30,j*100+60,i*100+35,j*100+65, fill='sienna4')
-##            self.plosca.create_oval(i*100+40,j*100+60,i*100+45,j*100+65, fill='sienna4')
-        ##povleci_potezo preveri ali je veljavna in kliče pobrisi le ce je.
+    ##povleci_potezo preveri ali je veljavna in kliče pobrisi le ce je.
         for k in range(j, VISINA):
             for l in range(i, SIRINA):
                 if self.koscki[j][l]!=None:
