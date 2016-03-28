@@ -481,6 +481,13 @@ class Gui():
 
     def koncno_okno(self,igralec):
         print("uspelo mi je")
+        
+        def combine_funcs(*funcs):
+            def combined_func(*args, **kwargs):
+                for f in funcs:
+                    f(*args, **kwargs)
+            return combined_func
+    
         def preklici():
             """Pomožna funkcija, ki zapre okno in nastavi atribut self.help na None."""
             self.konec.destroy()
@@ -492,14 +499,17 @@ class Gui():
 
         self.konec.grid_columnconfigure(0, minsize=600)
         self.konec.grid_rowconfigure(0, minsize=80)             # Nastavitev minimalne višine ničte vrstice
-        self.konec.grid_rowconfigure(2, minsize=80)             # Nastavitev minimalne višine druge vrstice
+        self.konec.grid_rowconfigure(2, minsize=100)             # Nastavitev minimalne višine druge vrstice
 
         Label(self.konec, text="Konec igre", font=("Helvetica", 20)).grid(row=0, column=0)
 
         Label(self.konec, text= "Želiš igrati ponovno?",
                  justify="left").grid(row=1, column=0)
-        
+        gumb_da=Button(self.konec, text="da",command=combine_funcs(lambda: self.nova_igra(Racunalnik(self, Nakljucje(self))), self.konec.destroy))
 
+        gumb_da.grid(row=2,column=0)
+        gumb_ne=Button(self.konec, text="ne", command=self.konec.destroy)
+        gumb_ne.grid(row=3,column=0)
 
 
 #####################################################
