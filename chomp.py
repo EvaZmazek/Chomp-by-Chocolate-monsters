@@ -114,6 +114,9 @@ class Igra():
                 # Igre je konec, nihče ne sme več narediti poteze.
             return stanje
 
+    def razveljavi(self):
+        (self.zaporedje, self.na_potezi)=self.zgodovina.pop()
+
 
 #######################################################################
 ## Človek:
@@ -181,9 +184,6 @@ class Nakljucje():
         self.poteza = None # tuple!!
         self.prekinitev = False
 
-    ZMAGA = 10000
-    NESKONCNO = ZMAGA + 1
-
     def izracunaj_potezo(self, igra):
         self.igra = igra
         self.prekinitev = False
@@ -198,7 +198,6 @@ class Nakljucje():
             
 
     def nakljucje(self):
-        #self.igra = igra
         if self.prekinitev:
             logging.debug("Nakljucje prekinja")
             return (None, 0) # Pri nakljucju vrednost poteze ni pomembna.
@@ -213,8 +212,6 @@ class Nakljucje():
             return (self.zrebaj(), 0)
         else:
             assert False, "Nakljucje: nedefinirano stanje igre"
-        #self.poteza = self.zrebaj() # tuple!!
-        #self.gui.povleci_potezo(i,j)
 
     def zrebaj(self):
         seznam=self.gui.igra.veljavne_poteze()
@@ -237,31 +234,79 @@ class Minimax():
         # Verjetno ne bova potrebovali: self.jaz = IGRALEC_2
         self.poteza = None # sem shrani izračunano potezo
 
+
+    ZMAGA = 10000
+    NESKONCNO = ZMAGA + 1
+
     def prekini(self):
         self.prekinitev = True
 
     def izracunaj_potezo(self, igra):
-##        self.igra=igra
-##        pozicije=sorted(self.igra.veljavne_poteze())
-##        zaporedje=[]
-##        for i,_ in pozicije:
-##            
-##            
-##        print(pozicije)
+##        self.igra = igra
+##        self.prekinitev = False
+##        self.poteza = None
+##        (poteza, vrednost) = self.minimax()
+##        self.igra = None
+##        if not self.prekinitev:
+##            logging.debug("Nakljucje: poteza{0}".format(poteza))
+##            self.poteza = poteza
         pass
 
     def vrednost_pozicije(self):
+        ### Ne moreš dat seznama za ključ v slovarju!!!!
         pass
     
     def minimax(self, globina, maksimiziramo):
-        pozicije=self.igra.veljavne_poteze()
-        for i in pozicije:
-            print(i)
-#            stolpec=i
-#            vrstica=j
-#        print(pozicije)
+        if self.prekinitev:
+            logging.debug("Minimax prekinja")
+            return (None, 0)
+        stanje = self.igra.stanje_igre()
+        if stanje in (IGRALEC_1, IGRALEC_2):
+            """ Igre je konec. """
+            if stanje == IGRALEC_2:
+                return (None, -Minimax.ZMAGA)
+            else:
+                return (None, Minimax.ZMAGA)
+        elif stanje == NI_KONEC:
+            if globina == 0:
+                return (None, self.vrednost_pozicije())
+            else:
+                poteze = self.igra.veljavne_poteze()
+                if maksimiziramo:
+                    najvecja_vrednost = -Minimax.NESKONCNO
+                    najboljsa_poteza = None
+                    for p in poteze:
+                        # Računamo, kaj se zgodi če potezo povlečemo
+                        self.igra.povleci_potezo(p)
+                        # Kakšna je največja možna vrednost poteze pri vseh možnih nadaljevanjih,
+                        # nam pove minimax, ki vrača (poteza, vrednost) - zato gledamo le 2.
+                        # element v tuple-u.
+                        vrednost=self.minimax(globina - 1, not maksimiziramo)[1]
+                        self.igra.razveljavi()
+                        if vrednost > najvecja_vrednost:
+                            najboljsa_poteza = p
+                            najvecja_vrednost = vrednost
+                else:
+                    najmanjsa_vrednost = Minimax.NESKONCNO
+                    najboljsa_poteza = None
+                    for p in poteze:
+                        # Računamo, kaj se zgodi če potezo povlečemo
+                        self.igra.povleci_potezo(p)
+                        # Kakšna je največja možna vrednost poteze pri vseh možnih nadaljevanjih,
+                        # nam pove minimax, ki vrača (poteza, vrednost) - zato gledamo le 2.
+                        # element v tuple-u.
+                        vrednost=self.minimax(globina - 1, not maksimiziramo)[1]
+                        self.igra.razveljavi()
+                        if vrednost < najvecja_vrednost:
+                            najboljsa_poteza = p
+                            najmanjsa_vrednost = vrednost
+                        
+                    
+        else:
+            assert False, "Nakljucje: nedefinirano stanje igre"
         
         pass
+
 #######################################################################
 
 class Gui():
@@ -276,11 +321,15 @@ class Gui():
         igra_menu = Menu(master)
         menu.add_cascade(label="Igra", menu=igra_menu)
 
+        #Podmenu Pomoč
+        pomoc_menu = Menu(master)
+        menu.add_cascade(label="Pomoč", menu=pomoc_menu)
+        pomoc_menu.add_command(label="Navodila igre", command=self.pomoc)
+
         igra_menu.add_command(label="2 igralca",command=lambda: self.nova_igra(Clovek(self)))
         # command mora bit funkcija
         igra_menu.add_command(label="Proti racunalniku (easy)",command=lambda: self.nova_igra(Racunalnik(self, Nakljucje(self))))
-        igra_menu.add_command(label="Proti racunalniku (medium)", command=lambda: self.nova_igra(Racunalnik(self, Minimax(self))))
-        igra_menu.add_command(label="Proti racunalniku (hard)")#,   command=#lambda: self.nova_igra(AlfaBeta))
+        igra_menu.add_command(label="Proti racunalniku (hard)", command=lambda: self.nova_igra(Racunalnik(self, Minimax(self))))
         igra_menu.add_command(label="Izhod",                      command=master.destroy)
 
         #Naredimo polje z opisom stanja/pozicije:
@@ -295,6 +344,32 @@ class Gui():
         
         #Klik na polje
         self.plosca.bind("<Button-1>", self.plosca_klik)
+
+    def pomoc(self):
+
+        def preklici():
+            """Pomožna funkcija, ki zapre okno in nastavi atribut self.help na None."""
+            self.pomoc.destroy()
+            self.pomoc = None
+
+        # Ustvari okno z informacijami o igri.
+        self.pomoc = Toplevel()
+        self.pomoc.title("Navodila igre")
+        self.pomoc.resizable(width=False, height=False)
+        self.pomoc.protocol("WM_DELETE_WINDOW", preklici)
+
+        self.pomoc.grid_columnconfigure(0, minsize=600)
+        self.pomoc.grid_rowconfigure(0, minsize=80)             # Nastavitev minimalne višine ničte vrstice
+        self.pomoc.grid_rowconfigure(2, minsize=20)             # Nastavitev minimalne višine druge vrstice
+
+        Label(self.pomoc, text="Navodila za igranje igre Chomp", font=("Helvetica", 20)).grid(row=0, column=0)
+
+        Label(self.pomoc, text= "Igra se igra na pravokotni plošči dimenzije nxm (tablici čokolade), ki je\n"
+                                "razdeljena na kvadratke. Igralca izmenično izbirata po en košček čokolade,\n"
+                                "pri čemer morata nato pojesti izbran kvadratek in vse kvardratke, ki so \n"
+                                "desno in pod njim. Kvadratek na zgornjem levem robu je zastrupljen. \n"
+                                "Igralec, ki poje ta košček čokolade, izgubi.\n",
+                 justify="left").grid(row=1, column=0)
 
     def plosca_klik(self, event):
         if event.x >= 10 and event.x<=SIRINA*100 + 10 and event.y >= 50 and event.y <= VISINA*100 + 50:
@@ -368,23 +443,7 @@ class Gui():
                 self.koncaj_igro()
 
     def pobrisi(self,i,j):
-##        if i==0 and j==0:
-##            self.napis.set('raje pojej nezastrupljen košček čokolade')
-##        elif self.igra.koscki[j][i] is None:
-##            self.napis.set('ups, ta košček čokolade je nekdo že pojedel')
-##        else:
-##            for k in range(VISINA-j):
-##                for l in range(SIRINA-i):
-##                    if self.koscki[j][i+l]!=None:
-##                            self.plosca.delete(self.koscki[j+k][i+l])
-##                    """nariše drobtine"""
-##            self.plosca.create_oval(i*100+20,j*100+60,i*100+25,j*100+65, fill='sienna4')
-##            self.plosca.create_oval(i*100+30,j*100+70,i*100+35,j*100+75, fill='sienna4')
-##            self.plosca.create_oval(i*100+20,j*100+70,i*100+25,j*100+75, fill='sienna4')
-##            self.plosca.create_oval(i*100+20,j*100+80,i*100+25,j*100+85, fill='sienna4')
-##            self.plosca.create_oval(i*100+30,j*100+60,i*100+35,j*100+65, fill='sienna4')
-##            self.plosca.create_oval(i*100+40,j*100+60,i*100+45,j*100+65, fill='sienna4')
-        ##povleci_potezo preveri ali je veljavna in kliče pobrisi le ce je.
+    ##povleci_potezo preveri ali je veljavna in kliče pobrisi le ce je.
         for k in range(j, VISINA):
             for l in range(i, SIRINA):
                 if self.koscki[j][l]!=None:
