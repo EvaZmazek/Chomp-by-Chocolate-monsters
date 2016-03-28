@@ -45,7 +45,7 @@ class Igra():
     
     def __init__(self):
         self.zaporedje=[VISINA for i in range(SIRINA)]
-        self.koscki=[[None for i in range(SIRINA)] for j in range(VISINA)]
+        self.koscki=[[None for i in range(SIRINA)] for j in range(VISINA)] #tega tudi verjetno več ne rabiva
         # Ustvarimo si matriko z enakimi dimenzijami kot čokolada, v kateri
         # si bomo zapomnili, katere koščke sta igralca že pojedla.
         
@@ -155,6 +155,7 @@ class Racunalnik():
         self.gui = gui
         self.algoritem = algoritem
         self.mislec = None
+        print(algoritem)
 
     def igraj(self):
         self.mislec = threading.Thread(
@@ -223,6 +224,55 @@ class Nakljucje():
             return (self.zrebaj(), 0)
         else:
             assert False, "Nakljucje: nedefinirano stanje igre"
+
+    def zrebaj(self):
+        seznam=self.gui.igra.veljavne_poteze()
+        if len(seznam)>1:
+            novseznam=seznam[1:]
+            return choice(novseznam)
+        else:
+            return seznam[0]
+
+    def prekini(self):
+        self.prekinitev = True
+
+#######################################################################
+## Medium:
+class Medium():
+    def __init__(self, gui):
+        self.gui = gui
+        self.igra = None
+        self.poteza = None # tuple!!
+        self.prekinitev = False
+
+    def izracunaj_potezo(self, igra):
+        self.igra = igra
+        self.prekinitev = False
+        self.poteza = None
+        (poteza, vrednost) = self.medium()
+        self.igra = None
+        if not self.prekinitev:
+            logging.debug("Medium: poteza{0}".format(poteza))
+            self.poteza = poteza
+        #else:
+            #print("Klicana je bila prekinitev")
+            
+
+    def medium(self):
+        if self.prekinitev:
+            logging.debug("Medium prekinja")
+            return (None, 0) # Pri nakljucju vrednost poteze ni pomembna.
+        stanje = self.igra.stanje_igre()
+        if stanje in (IGRALEC_1, IGRALEC_2):
+            """ Igre je konec. """
+            if stanje == IGRALEC_2:
+                return (None, 0)#Nakljucje.ZMAGA)
+            else:
+                return (None, 0)#-Nakljucje.ZMAGA)
+        elif stanje == NI_KONEC:
+            return (self.zrebaj(), 0)
+        else:
+            assert False, "Medium: nedefinirano stanje igre"
 
     def zrebaj(self):
         seznam=self.gui.igra.veljavne_poteze()
@@ -340,6 +390,7 @@ class Gui():
         igra_menu.add_command(label="2 igralca",command=lambda: self.nova_igra(Clovek(self)))
         # command mora bit funkcija
         igra_menu.add_command(label="Proti racunalniku (easy)",command=lambda: self.nova_igra(Racunalnik(self, Nakljucje(self))))
+        igra_menu.add_command(label="Proti racunalniku (medium)", command=lambda: self.nova_igra(Racunalnik(self, Medium(self))))
         igra_menu.add_command(label="Proti racunalniku (hard)")#, command=lambda: self.nova_igra(Racunalnik(self, Minimax(self))))
         igra_menu.add_command(label="Izhod",                      command=master.destroy)
 
@@ -405,6 +456,7 @@ class Gui():
 
     def nova_igra(self, Igralec_2):
         print('zaganjam novo igro')
+        print(Igralec_2)
         """Vzpostavi zaèetno stanje. Igralec_1 je vedno človek."""
         #Pobrišemo vse s canvasa:
         self.plosca.delete(ALL)
@@ -420,6 +472,8 @@ class Gui():
         #Določimo igralce
         self.igralec_1 = Clovek(self)
         self.igralec_2 = Igralec_2
+        #print(Igralec_2)
+        #print(self.igralec_2)
         #print(type (self.igralec_2))
         
         #Narišemo polje:
@@ -472,45 +526,46 @@ class Gui():
         igralec=nasprotnik(self.igra.zgodovina[-1][1])
         print(igralec)
         if igralec == "1":
-            print("čestitam, zmagal si!")
+            print("čestitam, zmagal/a si!")
             self.koncno_okno(igralec)
         else:
             print("nope")
+            self.koncno_okno(igralec)
         self.napis.set("Igre je konec. Zmagal je {0}. igralec".format(nasprotnik(self.igra.zgodovina[-1][1])))
         #pass
 
     def koncno_okno(self,igralec):
-        print("uspelo mi je")
+        #print(igralec)
+        #print("uspelo mi je")
+        napis= "Čestitam, zmagal/a si :)" if igralec == "1" else "Izgubil/a si. Več sreče prihodnjič"
         
         def combine_funcs(*funcs):
             def combined_func(*args, **kwargs):
                 for f in funcs:
                     f(*args, **kwargs)
             return combined_func
-    
-        def preklici():
-            """Pomožna funkcija, ki zapre okno in nastavi atribut self.help na None."""
-            self.konec.destroy()
-            self.konec = None
+        
         self.konec = Toplevel()
         self.konec.title("Konec igre")
         self.konec.resizable(width=False, height=False)
-        self.konec.protocol("WM_DELETE_WINDOW", preklici)
+        self.konec.protocol("WM_DELETE_WINDOW", self.konec.destroy)
 
-        self.konec.grid_columnconfigure(0, minsize=600)
-        self.konec.grid_rowconfigure(0, minsize=80)             # Nastavitev minimalne višine ničte vrstice
-        self.konec.grid_rowconfigure(2, minsize=100)             # Nastavitev minimalne višine druge vrstice
+        self.konec.grid_columnconfigure(1, minsize=45)
+#        self.konec.grid_columnconfigure(2, minsize=45)
+        self.konec.grid_rowconfigure(1, minsize=45)             # Nastavitev minimalne višine ničte vrstice
+        self.konec.grid_rowconfigure(2, minsize=45)             # Nastavitev minimalne višine druge vrstice
 
-        Label(self.konec, text="Konec igre", font=("Helvetica", 20)).grid(row=0, column=0)
+        Label(self.konec, text=napis, font=("Helvetica", 20),justify='center').grid(row=0, column=0, columnspan =2,sticky=E+W+N+S)
 
         Label(self.konec, text= "Želiš igrati ponovno?",
-                 justify="left").grid(row=1, column=0)
-        gumb_da=Button(self.konec, text="da",command=combine_funcs(lambda: self.nova_igra(Racunalnik(self, Nakljucje(self))), self.konec.destroy))
-
+                 justify="center").grid(row=1, column=0, columnspan =2,sticky=E+W+N+S)
+    
+        gumb_da=Button(self.konec, text="da",command=combine_funcs(lambda: self.nova_igra(Racunalnik(self, Nakljucje(self))),self.konec.destroy))
         gumb_da.grid(row=2,column=0)
+        
         gumb_ne=Button(self.konec, text="ne", command=self.konec.destroy)
-        gumb_ne.grid(row=3,column=0)
-
+        gumb_ne.grid(row=2,column=1)
+        
 
 #####################################################
 ## Glavni program
