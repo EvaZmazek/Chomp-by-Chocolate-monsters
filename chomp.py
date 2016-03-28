@@ -68,10 +68,12 @@ class Igra():
         return k
 
     def veljavne_poteze(self):
+        #print(self.zaporedje)
         poteze=[]
         for j in range(len(self.zaporedje)):
             for i in range(self.zaporedje[j]):
                 poteze.append((j,i))
+        #print(poteze)
         return poteze
 
     def stanje_igre(self):
@@ -93,10 +95,17 @@ class Igra():
     def povleci_potezo(self, i, j):
         """Povleče potezo (i,j) oz. ne naredi nič, če ni veljavna.
            Vrne stanje_igre po potezi ali None, če je poteza neveljavna."""
-        if (len(self.zaporedje)<=i) or (self.zaporedje[i]<j) :
-            #povleči hočemo neveljavno potezo
+        
+        if (i,j) not in self.veljavne_poteze():
+            """ta poteza ni veljavna, zato jo lahko označimo kot None, ker bo to razred
+            Gui zaznal kot neveljavno potezo"""
             assert False, "To je neveljavna poteza"
-            #return None
+            return None
+        
+##        if (len(self.zaporedje)<=i) or (self.zaporedje[i]<j) :
+##            #povleči hočemo neveljavno potezo
+##            assert False, "To je neveljavna poteza"
+##            #return None
         else:
             # Pozicijo zapišemo v zgodovino:
             self.shrani_pozicijo()
