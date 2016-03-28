@@ -101,11 +101,13 @@ class Igra():
             Gui zaznal kot neveljavno potezo"""
             assert False, "To je neveljavna poteza"
             return None
-        
+###############################        
+##to je bilo prej        
 ##        if (len(self.zaporedje)<=i) or (self.zaporedje[i]<j) :
 ##            #povleči hočemo neveljavno potezo
 ##            assert False, "To je neveljavna poteza"
 ##            #return None
+###############################        
         else:
             # Pozicijo zapišemo v zgodovino:
             self.shrani_pozicijo()
@@ -386,6 +388,8 @@ class Gui():
             j= (event.y - 50)//100
             if self.igra.na_potezi == IGRALEC_1:
                 self.igralec_1.klik(i,j)
+##############################
+#je ta del res potreben? v tem primeru je namreč self.igralec_2.klik(i,j) vedno none.
             elif self.igra.na_potezi == IGRALEC_2:
                 self.igralec_2.klik(i,j)
             else:
@@ -465,8 +469,36 @@ class Gui():
         self.plosca.create_oval(i*100+40,j*100+60,i*100+45,j*100+65, fill='sienna4')
 
     def koncaj_igro(self):
+        igralec=nasprotnik(self.igra.zgodovina[-1][1])
+        print(igralec)
+        if igralec == "1":
+            print("čestitam, zmagal si!")
+            self.koncno_okno(igralec)
+        else:
+            print("nope")
         self.napis.set("Igre je konec. Zmagal je {0}. igralec".format(nasprotnik(self.igra.zgodovina[-1][1])))
         #pass
+
+    def koncno_okno(self,igralec):
+        print("uspelo mi je")
+        def preklici():
+            """Pomožna funkcija, ki zapre okno in nastavi atribut self.help na None."""
+            self.konec.destroy()
+            self.konec = None
+        self.konec = Toplevel()
+        self.konec.title("Konec igre")
+        self.konec.resizable(width=False, height=False)
+        self.konec.protocol("WM_DELETE_WINDOW", preklici)
+
+        self.konec.grid_columnconfigure(0, minsize=600)
+        self.konec.grid_rowconfigure(0, minsize=80)             # Nastavitev minimalne višine ničte vrstice
+        self.konec.grid_rowconfigure(2, minsize=80)             # Nastavitev minimalne višine druge vrstice
+
+        Label(self.konec, text="Konec igre", font=("Helvetica", 20)).grid(row=0, column=0)
+
+        Label(self.konec, text= "Želiš igrati ponovno?",
+                 justify="left").grid(row=1, column=0)
+        
 
 
 
