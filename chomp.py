@@ -421,7 +421,7 @@ class Gui():
         #Podmenu Nastavitve
         pomoc_menu = Menu(master)
         menu.add_cascade(label="Nastavitve", menu=pomoc_menu)
-        pomoc_menu.add_command(label="Igralno polje", command=self.spremeni_visino_in_sirino)
+        pomoc_menu.add_command(label="Igralno polje", command=lambda: self.spremeni_visino_in_sirino(master))
         
         #Podmenu Pomoč
         pomoc_menu = Menu(master)
@@ -439,22 +439,24 @@ class Gui():
         self.napis = StringVar(master, value="Kasneje bo tu pisalo, kateri igralec je na vrsti/kaj je bila zadnja poteza/kdo je zmagal")
         Label(master, textvariable=self.napis).grid(row=0, column=0)
 
-#        self.nova_igra(Racunalnik(self, Nakljucje(self)))#Clovek(self))
-        
-        self.plosca = Canvas(master, width=SIRINA*100 + 20, height=VISINA*100 + 60)
-#        self.plosca(master,fill=BOTH, expand=YES)
-        self.plosca.grid(row=1, column=0)
-
         #Naredimo polje za čokolado:
 ##        self.plosca = Canvas(master, width=SIRINA*100 + 20, height=VISINA*100 + 60)
 ##        self.plosca.grid(row=1, column=0)
+
+        self.pripravi_plosco(master)
         
-        self.nova_igra(Racunalnik(self, Nakljucje(self)))#Clovek(self))
+ #       self.nova_igra(Racunalnik(self, Nakljucje(self)))#Clovek(self))
         
         #Klik na polje
+#        self.plosca.bind("<Button-1>", self.plosca_klik)
+        
+    def pripravi_plosco(self,master):
+        self.plosca = Canvas(master, width=SIRINA*100 + 20, height=VISINA*100 + 60)
+        self.plosca.grid(row=1, column=0)
+        self.nova_igra(Racunalnik(self, Nakljucje(self)))#Clovek(self))
         self.plosca.bind("<Button-1>", self.plosca_klik)
 
-    def spremeni_visino_in_sirino(self):
+    def spremeni_visino_in_sirino(self,master):
         """pomozna funkcija, ki spremeni visino in sirino igralnega polja oz. cokolade"""
         print("spreminjam visino in sirino")
         global VISINA
@@ -486,9 +488,10 @@ class Gui():
 
         # Gumba za začetek nove igre in preklic
         Button(spremeni, text="Prekliči", width=8, height=2,command= lambda: spremeni.destroy()).grid(row=4, column=1)
-        Button(spremeni, text="Začni igro", width=8, height=2,command= lambda: visina_sirina()).grid(row=4, column=2)
+        Button(spremeni, text="Začni igro", width=8, height=2,command= lambda: visina_sirina(master)).grid(row=4, column=2)
 
-        def visina_sirina():
+        def visina_sirina(master):
+            self.plosca.destroy()
             global VISINA
             global SIRINA
             vi=visina.get()
@@ -505,9 +508,8 @@ class Gui():
                 sirin=SIRINA
             VISINA=visin
             SIRINA=sirin
-            self.nova_igra(Racunalnik(self, Nakljucje(self)))
+            self.pripravi_plosco(master)
             spremeni.destroy()
-            main()
 #            print(visin,sirin)
 
         def uredi_vnos(stringa):
