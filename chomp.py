@@ -13,30 +13,31 @@ NI_KONEC = "ni konec"
 
 MINIMAX_GLOBINA = 3
 
-def nasprotnik(igralec):
-    if igralec == IGRALEC_1:
-        return IGRALEC_2
-    elif igralec == IGRALEC_2:
-        return IGRALEC_1
-    else:
-        assert False, "neveljaven nasprotnik"
+#premaknila sem jo v razred Igra
+##def nasprotnik(igralec):
+##    if igralec == IGRALEC_1:
+##        return IGRALEC_2
+##    elif igralec == IGRALEC_2:
+##        return IGRALEC_1
+##    else:
+##        assert False, "neveljaven nasprotnik"
 
-
-def polepsaj(zap, i, j):
-    # Funkcija vrne zaporedje, kakor izgleda po tem ko potegnemo
-    # potezo (okrajša stolpce na višino i oz. jih pusti enake, če
-    # je i > trenutne višine). Pobriše tudi ničle s konca.
-    if (i,j) == (0,0):
-        return [0]
-    else:
-        novo = [x for x in zap]
-        for indeks in range(i, len(novo)):
-            stara_vr = novo[indeks]
-            #print(indeks)
-            novo[indeks] = min(stara_vr, j)
-        novo = [x for x in novo if x != 0]
-        #print ("Izpisujem zaporedje po potezi ({0}, {1}): {2}".format(i,j,novo))
-        return novo
+#Premaknila sem jo v razred Igra
+##def polepsaj(zap, i, j):
+##    # Funkcija vrne zaporedje, kakor izgleda po tem ko potegnemo
+##    # potezo (okrajša stolpce na višino i oz. jih pusti enake, če
+##    # je i > trenutne višine). Pobriše tudi ničle s konca.
+##    if (i,j) == (0,0):
+##        return [0]
+##    else:
+##        novo = [x for x in zap]
+##        for indeks in range(i, len(novo)):
+##            stara_vr = novo[indeks]
+##            #print(indeks)
+##            novo[indeks] = min(stara_vr, j)
+##        novo = [x for x in novo if x != 0]
+##        #print ("Izpisujem zaporedje po potezi ({0}, {1}): {2}".format(i,j,novo))
+##        return novo
 
 ######################################################################
 ## Razred Igra
@@ -113,14 +114,14 @@ class Igra():
             self.shrani_pozicijo()
             # Spremenimo self.zaporedje, ker povlečemo potezo in se pozicija
             # spremeni:
-            novi=polepsaj(self.zaporedje, i, j)
+            novi=self.polepsaj(self.zaporedje, i, j)
             print(novi)
             self.zaporedje = novi
             stanje=self.stanje_igre()
             # Če še ni konec igre, moramo zamenjati igralca, ki je na vrsti,
             # v vsakem primeru pa nato vrniti stanje igre
             if stanje == NI_KONEC:
-                self.na_potezi = nasprotnik(self.na_potezi)
+                self.na_potezi = self.nasprotnik(self.na_potezi)
             else:
                 self.na_potezi = None
                 # Igre je konec, nihče ne sme več narediti poteze.
@@ -128,6 +129,30 @@ class Igra():
 
     def razveljavi(self):
         (self.zaporedje, self.na_potezi)=self.zgodovina.pop()
+
+    def polepsaj(self,zap, i, j):
+    # Funkcija vrne zaporedje, kakor izgleda po tem ko potegnemo
+    # potezo (okrajša stolpce na višino i oz. jih pusti enake, če
+    # je i > trenutne višine). Pobriše tudi ničle s konca.
+        if (i,j) == (0,0):
+            return [0]
+        else:
+            novo = [x for x in zap]
+            for indeks in range(i, len(novo)):
+                stara_vr = novo[indeks]
+                #print(indeks)
+                novo[indeks] = min(stara_vr, j)
+            novo = [x for x in novo if x != 0]
+            #print ("Izpisujem zaporedje po potezi ({0}, {1}): {2}".format(i,j,novo))
+            return novo
+
+    def nasprotnik(self,igralec):
+        if igralec == IGRALEC_1:
+            return IGRALEC_2
+        elif igralec == IGRALEC_2:
+            return IGRALEC_1
+        else:
+            assert False, "neveljaven nasprotnik"
 
 
 #######################################################################
@@ -381,6 +406,8 @@ class Gui():
 
 ##        #nastavitev atributov
 ##        self.pomoc=None  # Okno za pomoč pri igranju igre, ko ni odprto je None.
+        self.ime_1="ig 1"
+        self.ime_2="ig 2"
 
         #Podmenu za izbiro igre
         igra_menu = Menu(master)
@@ -407,9 +434,13 @@ class Gui():
         self.napis = StringVar(master, value="Kasneje bo tu pisalo, kateri igralec je na vrsti/kaj je bila zadnja poteza/kdo je zmagal")
         Label(master, textvariable=self.napis).grid(row=0, column=0)
 
-        #Naredimo polje za čokolado:
         self.plosca = Canvas(master, width=SIRINA*100 + 20, height=VISINA*100 + 60)
+#        self.plosca(master,fill=BOTH, expand=YES)
         self.plosca.grid(row=1, column=0)
+
+        #Naredimo polje za čokolado:
+##        self.plosca = Canvas(master, width=SIRINA*100 + 20, height=VISINA*100 + 60)
+##        self.plosca.grid(row=1, column=0)
         
         self.nova_igra(Racunalnik(self, Nakljucje(self)))#Clovek(self))
         
@@ -627,21 +658,21 @@ class Gui():
         self.konec.resizable(width=False, height=False)
         self.konec.protocol("WM_DELETE_WINDOW", self.konec.destroy)
 
-        self.konec.grid_columnconfigure(1, minsize=45)
-#        self.konec.grid_columnconfigure(2, minsize=45)
-        self.konec.grid_rowconfigure(1, minsize=45)             # Nastavitev minimalne višine ničte vrstice
-        self.konec.grid_rowconfigure(2, minsize=45)             # Nastavitev minimalne višine druge vrstice
+        self.konec.grid_columnconfigure(0, minsize=45)
+        self.konec.grid_columnconfigure(3, minsize=45)
+        self.konec.grid_rowconfigure(0, minsize=60)             # Nastavitev minimalne višine ničte vrstice
+        self.konec.grid_rowconfigure(3, minsize=45)             # Nastavitev minimalne višine druge vrstice
 
-        Label(self.konec, text=napis, font=("Helvetica", 20),justify='center').grid(row=0, column=0, columnspan =2,sticky=E+W+N+S)
+        Label(self.konec, text=napis, font=("Helvetica", 20),justify='center').grid(row=0, column=1, columnspan =2,sticky=E+W+N+S)
 
         Label(self.konec, text= "Želiš igrati ponovno?",
-                 justify="center").grid(row=1, column=0, columnspan =2,sticky=E+W+N+S)
+                 justify="center").grid(row=1, column=1, columnspan =2,sticky=E+W+N+S)
     
-        gumb_da=Button(self.konec, text="da",command=combine_funcs(lambda: self.nova_igra(Racunalnik(self, Nakljucje(self))),self.konec.destroy))
-        gumb_da.grid(row=2,column=0)
+        gumb_da=Button(self.konec, text="da",width=8, height=2,command=combine_funcs(lambda: self.nova_igra(Racunalnik(self, Nakljucje(self))),self.konec.destroy))
+        gumb_da.grid(row=3,column=1)
         
-        gumb_ne=Button(self.konec, text="ne", command=self.konec.destroy)
-        gumb_ne.grid(row=2,column=1)
+        gumb_ne=Button(self.konec, text="ne",width=8, height=2, command=self.konec.destroy)
+        gumb_ne.grid(row=3,column=2)
         
 
 #####################################################
