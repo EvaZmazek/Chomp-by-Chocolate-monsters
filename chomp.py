@@ -233,7 +233,7 @@ class Nakljucje():
             self.poteza = poteza
         #else:
             #print("Klicana je bila prekinitev")
-        print("zaganjam Nakljucje")
+##        print("zaganjam Nakljucje")
             
 
     def nakljucje(self):
@@ -283,7 +283,7 @@ class Medium():
             self.poteza = poteza
         #else:
             #print("Klicana je bila prekinitev")
-        print("zaganjam Medium")
+##        print("zaganjam Medium")
             
 
     def medium(self):
@@ -339,7 +339,7 @@ class Minimax():
 ##        if not self.prekinitev:
 ##            logging.debug("Nakljucje: poteza{0}".format(poteza))
 ##            self.poteza = poteza
-        print("zaganjam Minimax")
+##        print("zaganjam Minimax")
         pass
 
     def vrednost_pozicije(self):
@@ -402,7 +402,8 @@ class Minimax():
 class Gui():
     
     def __init__(self,master):
-        self.koscki=[[None for i in range(SIRINA)] for j in range(VISINA)]
+#povečala matriko
+        self.koscki=[[None for i in range(SIRINA+10)] for j in range(VISINA+10)] #polje(cokolado) predstavimo v obliki matrike
         #Glavni menu:
         menu = Menu(master)
         master.config(menu=menu)
@@ -416,12 +417,12 @@ class Gui():
         #Podmenu za izbiro igre
         igra_menu = Menu(master)
         menu.add_cascade(label="Igra", menu=igra_menu)
-
+        
         #Podmenu Nastavitve
         pomoc_menu = Menu(master)
         menu.add_cascade(label="Nastavitve", menu=pomoc_menu)
         pomoc_menu.add_command(label="Igralno polje", command=self.spremeni_visino_in_sirino)
-
+        
         #Podmenu Pomoč
         pomoc_menu = Menu(master)
         menu.add_cascade(label="Pomoč", menu=pomoc_menu)
@@ -438,6 +439,8 @@ class Gui():
         self.napis = StringVar(master, value="Kasneje bo tu pisalo, kateri igralec je na vrsti/kaj je bila zadnja poteza/kdo je zmagal")
         Label(master, textvariable=self.napis).grid(row=0, column=0)
 
+#        self.nova_igra(Racunalnik(self, Nakljucje(self)))#Clovek(self))
+        
         self.plosca = Canvas(master, width=SIRINA*100 + 20, height=VISINA*100 + 60)
 #        self.plosca(master,fill=BOTH, expand=YES)
         self.plosca.grid(row=1, column=0)
@@ -504,7 +507,7 @@ class Gui():
             SIRINA=sirin
             self.nova_igra(Racunalnik(self, Nakljucje(self)))
             spremeni.destroy()
-            
+            main()
 #            print(visin,sirin)
 
         def uredi_vnos(stringa):
@@ -586,7 +589,7 @@ class Gui():
         """Vzpostavi zaèetno stanje. Igralec_1 je vedno človek."""
         #Pobrišemo vse s canvasa:
         self.plosca.delete(ALL)
-        
+
         for i in range(VISINA+1):
             self.plosca.create_line(10, i*100 + 50, SIRINA*100 + 10, i*100 + 50) 
         for i in range(SIRINA+1):
@@ -657,7 +660,7 @@ class Gui():
             print("čestitam, zmagal/a si!")
             self.koncno_okno(igralec)
         else:
-            print("nope")
+            print("izgubil/a si")
             self.koncno_okno(igralec)
 #        print(self.igra.zgodovina)
 #        self.napis.set("Igre je konec. Zmagal je {0}. igralec".format(self.igra.nasprotnik(self.igra.zgodovina[-1][1])))
@@ -709,12 +712,21 @@ class Gui():
                 print("ni ok")
 
 
-        
+#################################################################
+def main():
+    root = Tk()
+    root.title("Chomp")
+    aplikacija=Gui(root)
+    root.mainloop()
+
+if __name__ == "__main__":
+    main()
+       
 
 #####################################################
 ## Glavni program
-if __name__ == "__main__":
-    root = Tk()
-    root.title("Chomp")
-    aplikacija = Gui(root)
-    root.mainloop()
+##if __name__ == "__main__":
+##    root = Tk()
+##    root.title("Chomp")
+##    aplikacija = Gui(root)
+##    root.mainloop()
