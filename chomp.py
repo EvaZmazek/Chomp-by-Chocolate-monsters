@@ -107,13 +107,14 @@ class Igra():
 ##            #povleči hočemo neveljavno potezo
 ##            assert False, "To je neveljavna poteza"
 ##            #return None
-###############################        
+###############################
         else:
             # Pozicijo zapišemo v zgodovino:
             self.shrani_pozicijo()
             # Spremenimo self.zaporedje, ker povlečemo potezo in se pozicija
             # spremeni:
             novi=polepsaj(self.zaporedje, i, j)
+            print(novi)
             self.zaporedje = novi
             stanje=self.stanje_igre()
             # Če še ni konec igre, moramo zamenjati igralca, ki je na vrsti,
@@ -155,7 +156,7 @@ class Racunalnik():
         self.gui = gui
         self.algoritem = algoritem
         self.mislec = None
-        print(algoritem)
+#        print(algoritem)
 
     def igraj(self):
         self.mislec = threading.Thread(
@@ -368,8 +369,8 @@ class Minimax():
         
         pass
 
-#######################################################################
-
+#####################################################################################################################################
+## GUI:
 class Gui():
     
     def __init__(self,master):
@@ -377,6 +378,9 @@ class Gui():
         #Glavni menu:
         menu = Menu(master)
         master.config(menu=menu)
+
+##        #nastavitev atributov
+##        self.pomoc=None  # Okno za pomoč pri igranju igre, ko ni odprto je None.
 
         #Podmenu za izbiro igre
         igra_menu = Menu(master)
@@ -413,6 +417,12 @@ class Gui():
             """Pomožna funkcija, ki zapre okno in nastavi atribut self.help na None."""
             self.pomoc.destroy()
             self.pomoc = None
+
+        # Preveri, če je okno že ustvarjeno, če je ga da na vrh in se vrne.
+##        if self.pomoc is not None:
+##            pass
+##            self.pomoc.lift()
+##            pass
 
         # Ustvari okno z informacijami o igri.
         self.pomoc = Toplevel()
@@ -456,7 +466,7 @@ class Gui():
 
     def nova_igra(self, Igralec_2):
         print('zaganjam novo igro')
-        print(Igralec_2)
+#        print(Igralec_2)
         """Vzpostavi zaèetno stanje. Igralec_1 je vedno človek."""
         #Pobrišemo vse s canvasa:
         self.plosca.delete(ALL)
@@ -513,7 +523,7 @@ class Gui():
     ##povleci_potezo preveri ali je veljavna in kliče pobrisi le ce je.
         for k in range(j, VISINA):
             for l in range(i, SIRINA):
-                if self.koscki[j][l]!=None:
+                if self.koscki[k][l]!=None:
                     self.plosca.delete(self.koscki[k][l])
         self.plosca.create_oval(i*100+20,j*100+60,i*100+25,j*100+65, fill='sienna4')
         self.plosca.create_oval(i*100+30,j*100+70,i*100+35,j*100+75, fill='sienna4')
