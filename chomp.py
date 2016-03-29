@@ -46,7 +46,7 @@ class Igra():
     
     def __init__(self):
         self.zaporedje=[VISINA for i in range(SIRINA)]
-        self.koscki=[[None for i in range(SIRINA)] for j in range(VISINA)] #tega tudi verjetno več ne rabiva
+        #self.koscki=[[None for i in range(SIRINA)] for j in range(VISINA)] #tega tudi verjetno več ne rabiva
         # Ustvarimo si matriko z enakimi dimenzijami kot čokolada, v kateri
         # si bomo zapomnili, katere koščke sta igralca že pojedla.
         
@@ -115,7 +115,7 @@ class Igra():
             # Spremenimo self.zaporedje, ker povlečemo potezo in se pozicija
             # spremeni:
             novi=self.polepsaj(self.zaporedje, i, j)
-            print(novi)
+#            print(novi)
             self.zaporedje = novi
             stanje=self.stanje_igre()
             # Če še ni konec igre, moramo zamenjati igralca, ki je na vrsti,
@@ -233,6 +233,7 @@ class Nakljucje():
             self.poteza = poteza
         #else:
             #print("Klicana je bila prekinitev")
+        print("zaganjam Nakljucje")
             
 
     def nakljucje(self):
@@ -282,6 +283,7 @@ class Medium():
             self.poteza = poteza
         #else:
             #print("Klicana je bila prekinitev")
+        print("zaganjam Medium")
             
 
     def medium(self):
@@ -337,6 +339,7 @@ class Minimax():
 ##        if not self.prekinitev:
 ##            logging.debug("Nakljucje: poteza{0}".format(poteza))
 ##            self.poteza = poteza
+        print("zaganjam Minimax")
         pass
 
     def vrednost_pozicije(self):
@@ -408,6 +411,7 @@ class Gui():
 ##        self.pomoc=None  # Okno za pomoč pri igranju igre, ko ni odprto je None.
         self.ime_1="ig 1"
         self.ime_2="ig 2"
+        self.tezavnost=None
 
         #Podmenu za izbiro igre
         igra_menu = Menu(master)
@@ -425,9 +429,9 @@ class Gui():
 
         igra_menu.add_command(label="2 igralca",command=lambda: self.nova_igra(Clovek(self)))
         # command mora bit funkcija
-        igra_menu.add_command(label="Proti racunalniku (easy)",command=lambda: self.nova_igra(Racunalnik(self, Nakljucje(self))))
-        igra_menu.add_command(label="Proti racunalniku (medium)", command=lambda: self.nova_igra(Racunalnik(self, Medium(self))))
-        igra_menu.add_command(label="Proti racunalniku (hard)")#, command=lambda: self.nova_igra(Racunalnik(self, Minimax(self))))
+        igra_menu.add_command(label="Proti racunalniku (easy)",command=lambda: self.doloci_igralce(Nakljucje))
+        igra_menu.add_command(label="Proti racunalniku (medium)", command=lambda: self.doloci_igralce(Medium))
+        igra_menu.add_command(label="Proti racunalniku (hard)")#, command=lambda: self.doloci_igralce(Minimax))
         igra_menu.add_command(label="Izhod",                      command=master.destroy)
 
         #Naredimo polje z opisom stanja/pozicije:
@@ -501,7 +505,7 @@ class Gui():
             self.nova_igra(Racunalnik(self, Nakljucje(self)))
             spremeni.destroy()
             
-            print(visin,sirin)
+#            print(visin,sirin)
 
         def uredi_vnos(stringa):
             for i in stringa:
@@ -562,6 +566,20 @@ class Gui():
         """narise koscek čokolade na (i,j)-tem polju izbrane barve"""
         return self.plosca.create_rectangle(15 + j*100, 55 + i*100, 105 + j*100, 145 + i*100, fill=barva)
 
+    def doloci_igralce(self,Igralec2):
+        #print(Igralec2)
+        if Igralec2==Nakljucje:
+            igra=Racunalnik(self, Nakljucje(self))
+        elif Igralec2==Medium:
+            igra=Racunalnik(self, Medium(self))
+        elif Igralec2==Minimax:
+            igra=racunalnik(self, Minimac(self))
+        else: assert False, "nekaj je šlo narobe"
+        self.nova_igra(igra)
+        self.tezavnost=Igralec2
+        print(Igralec2)
+        return "Igralec2"
+        
     def nova_igra(self, Igralec_2):
         print('zaganjam novo igro')
 #        print(Igralec_2)
@@ -631,15 +649,18 @@ class Gui():
         self.plosca.create_oval(i*100+40,j*100+60,i*100+45,j*100+65, fill='sienna4')
 
     def koncaj_igro(self):
-        igralec=nasprotnik(self.igra.zgodovina[-1][1])
-        print(igralec)
+        igralec=self.igra.nasprotnik(self.igra.zgodovina[-1][1])
+   #     print(igralec)
+        self.napis.set("Igre je konec. Zmagal je {0}. igralec".format(self.igra.nasprotnik(self.igra.zgodovina[-1][1])))
+#        print(self.igra.zgodovina[-1][1])
         if igralec == "1":
             print("čestitam, zmagal/a si!")
             self.koncno_okno(igralec)
         else:
             print("nope")
             self.koncno_okno(igralec)
-        self.napis.set("Igre je konec. Zmagal je {0}. igralec".format(nasprotnik(self.igra.zgodovina[-1][1])))
+#        print(self.igra.zgodovina)
+#        self.napis.set("Igre je konec. Zmagal je {0}. igralec".format(self.igra.nasprotnik(self.igra.zgodovina[-1][1])))
         #pass
 
     def koncno_okno(self,igralec):
@@ -667,12 +688,27 @@ class Gui():
 
         Label(self.konec, text= "Želiš igrati ponovno?",
                  justify="center").grid(row=1, column=1, columnspan =2,sticky=E+W+N+S)
+        
     
-        gumb_da=Button(self.konec, text="da",width=8, height=2,command=combine_funcs(lambda: self.nova_igra(Racunalnik(self, Nakljucje(self))),self.konec.destroy))
+        gumb_da=Button(self.konec, text="da",width=8, height=2,command=combine_funcs(lambda: preveri(self.tezavnost),self.konec.destroy))
         gumb_da.grid(row=3,column=1)
         
         gumb_ne=Button(self.konec, text="ne",width=8, height=2, command=self.konec.destroy)
         gumb_ne.grid(row=3,column=2)
+
+        def preveri(tezavnost):
+            if self.tezavnost == None:
+                self.nova_igra(Racunalnik(self,Nakljucje(self)))
+            elif str(self.tezavnost) == "<class '__main__.Nakljucje'>":
+                self.nova_igra(Racunalnik(self,Nakljucje(self)))
+            elif str(self.tezavnost) == "<class '__main__.Medium'>":
+                self.nova_igra(Racunalnik(self,Medium(self)))
+            elif str(self.tezavnost) == "<class '__main__.Minimax'>":
+                self.nova_igra(Racunalnik(self,Minimax(self)))
+            else:
+                print("ni ok")
+
+
         
 
 #####################################################
