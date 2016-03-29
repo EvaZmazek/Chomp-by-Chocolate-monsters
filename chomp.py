@@ -402,16 +402,15 @@ class Minimax():
 class Gui():
     
     def __init__(self,master):
-#povečala matriko
-        self.koscki=[[None for i in range(SIRINA+10)] for j in range(VISINA+10)] #polje(cokolado) predstavimo v obliki matrike
+        self.koscki=[[None for i in range(20)] for j in range(20)] #polje(cokolado) predstavimo v obliki matrike (maksimum)
         #Glavni menu:
         menu = Menu(master)
         master.config(menu=menu)
 
 ##        #nastavitev atributov
 ##        self.pomoc=None  # Okno za pomoč pri igranju igre, ko ni odprto je None.
-        self.ime_1="ig 1"
-        self.ime_2="ig 2"
+        self.ime_1="1"
+        self.ime_2="2"
         self.tezavnost=None
 
         #Podmenu za izbiro igre
@@ -421,15 +420,15 @@ class Gui():
         #Podmenu Nastavitve
         pomoc_menu = Menu(master)
         menu.add_cascade(label="Nastavitve", menu=pomoc_menu)
-        pomoc_menu.add_command(label="Igralno polje", command=lambda: self.spremeni_visino_in_sirino(master))
+        pomoc_menu.add_command(label="Velikost čokolade", command=lambda: self.spremeni_visino_in_sirino(master))
+        pomoc_menu.add_command(label="Imena", command=self.spremeni_ime)
         
         #Podmenu Pomoč
         pomoc_menu = Menu(master)
         menu.add_cascade(label="Pomoč", menu=pomoc_menu)
         pomoc_menu.add_command(label="Navodila igre", command=self.pomoc)
 
-        igra_menu.add_command(label="2 igralca",command=lambda: self.nova_igra(Clovek(self)))
-        # command mora bit funkcija
+        igra_menu.add_command(label="2 igralca",command=lambda: self.nova_igra(Clovek(self))) # command mora bit funkcija
         igra_menu.add_command(label="Proti racunalniku (easy)",command=lambda: self.doloci_igralce(Nakljucje))
         igra_menu.add_command(label="Proti racunalniku (medium)", command=lambda: self.doloci_igralce(Medium))
         igra_menu.add_command(label="Proti racunalniku (hard)")#, command=lambda: self.doloci_igralce(Minimax))
@@ -439,22 +438,15 @@ class Gui():
         self.napis = StringVar(master, value="Kasneje bo tu pisalo, kateri igralec je na vrsti/kaj je bila zadnja poteza/kdo je zmagal")
         Label(master, textvariable=self.napis).grid(row=0, column=0)
 
-        #Naredimo polje za čokolado:
-##        self.plosca = Canvas(master, width=SIRINA*100 + 20, height=VISINA*100 + 60)
-##        self.plosca.grid(row=1, column=0)
-
+        #pokličemo funkcijo, ki nam nariše polje
         self.pripravi_plosco(master)
-        
- #       self.nova_igra(Racunalnik(self, Nakljucje(self)))#Clovek(self))
-        
-        #Klik na polje
-#        self.plosca.bind("<Button-1>", self.plosca_klik)
+        self.nova_igra(Racunalnik(self, Nakljucje(self)))   #na začetku nastavimo na algoritem Nakljucje
         
     def pripravi_plosco(self,master):
+        #Naredimo polje za čokolado:
         self.plosca = Canvas(master, width=SIRINA*100 + 20, height=VISINA*100 + 60)
         self.plosca.grid(row=1, column=0)
-        self.nova_igra(Racunalnik(self, Nakljucje(self)))#Clovek(self))
-        self.plosca.bind("<Button-1>", self.plosca_klik)
+        self.plosca.bind("<Button-1>", self.plosca_klik)    #Klik na polje
 
     def spremeni_visino_in_sirino(self,master):
         """pomozna funkcija, ki spremeni visino in sirino igralnega polja oz. cokolade"""
@@ -465,7 +457,7 @@ class Gui():
         # Ustvari novo okno za izbiro visine in sirine
         spremeni=Toplevel()
         spremeni.grab_set()                                   # Postavi fokus na okno in ga obdrži
-        spremeni.title("Nastavitve igralnega polja")                # Naslov okna
+        spremeni.title("Velikost čokolade")                # Naslov okna
         spremeni.resizable(width=False, height=False)         # Velikosti okna ni mogoče spreminjati
 
         spremeni.grid_columnconfigure(0, minsize=40)         # Nastavitev minimalne širine ničtega stolpca
@@ -473,7 +465,7 @@ class Gui():
         spremeni.grid_rowconfigure(0, minsize=80)             # Nastavitev minimalne višine ničte vrstice
         spremeni.grid_rowconfigure(6, minsize=10)             # Nastavitev minimalne višine šeste vrstice
 
-        Label(spremeni, text="Nastavitve igralnega polja", font=("Helvetica", 20)).grid(row=0, column=1, columnspan=4)
+        Label(spremeni, text="Velikost čokolade", font=("Helvetica", 20)).grid(row=0, column=1, columnspan=4)
 
         Label(spremeni, text="Visina:").grid(row=2, column=1, sticky="E")
         Label(spremeni, text="Sirina:").grid(row=3, column=1, sticky="E")
@@ -491,33 +483,65 @@ class Gui():
         Button(spremeni, text="Začni igro", width=8, height=2,command= lambda: visina_sirina(master)).grid(row=4, column=2)
 
         def visina_sirina(master):
-            self.plosca.destroy()
+            #self.plosca.destroy()
             global VISINA
             global SIRINA
-            vi=visina.get()
-            si=sirina.get()
-            visi=uredi_vnos(vi)
-            siri=uredi_vnos(si)
+            visi=uredi_vnos(visina.get())
+            siri=uredi_vnos(sirina.get())
             if visi is not None:
-                visin=visi
-            else:
-                visin=VISINA
+                VISINA=visi
             if siri is not None:
-                sirin=siri
-            else:
-                sirin=SIRINA
-            VISINA=visin
-            SIRINA=sirin
+                SIRINA=siri
+            self.plosca.destroy()
             self.pripravi_plosco(master)
+            self.preveri(self.tezavnost)
             spremeni.destroy()
-#            print(visin,sirin)
 
         def uredi_vnos(stringa):
             for i in stringa:
                 if i not in "0123456789":
                     return None
+            if int(stringa) > 15:
+                return None
             return int(stringa)
 
+    def spremeni_ime(self):
+        print("spreminjam imena")
+        # Ustvari novo okno za izbiro visine in sirine
+        ime=Toplevel()
+        ime.grab_set()                                   # Postavi fokus na okno in ga obdrži
+        ime.title("Imena igralcev")                # Naslov okna
+        ime.resizable(width=False, height=False)         # Velikosti okna ni mogoče spreminjati
+
+        ime.grid_columnconfigure(0, minsize=40)         # Nastavitev minimalne širine ničtega stolpca
+        ime.grid_columnconfigure(5, minsize=40)         # Nastavitev minimalne širine drugega stolpca
+        ime.grid_rowconfigure(0, minsize=80)             # Nastavitev minimalne višine ničte vrstice
+        ime.grid_rowconfigure(6, minsize=10)             # Nastavitev minimalne višine šeste vrstice
+
+        Label(ime, text="Imena igralcev", font=("Helvetica", 20)).grid(row=0, column=1, columnspan=4)
+        
+        Label(ime, text="Igralec 1:").grid(row=2, column=1, sticky="E")
+        Label(ime, text="Igralec 2:").grid(row=3, column=1, sticky="E")
+
+        igralec1 = Entry(ime, font="Helvetica 12", width=10)  # Vnosno polje za visino
+        igralec1.grid(row=2, column=2)
+        igralec1.insert(0, self.ime_1)                                     # Privzeta visina
+##        igralec2 = Entry(ime, font="Helvetica 12", width=10)  # Vnosno polje za sirino
+##        igralec2.grid(row=3, column=2)
+##        igralec2.insert(0, self.ime_2)                                     # Privzeta sirina
+        # ---------------------------------------------------------
+
+        # Gumba za začetek nove igre in preklic
+        Button(ime, text="Prekliči", width=8, height=2,command= lambda: ime.destroy()).grid(row=4, column=1)
+        Button(ime, text="Začni igro", width=8, height=2,command= lambda: spremeni_ime()).grid(row=4, column=2)
+
+        def spremeni_ime():
+            self.ime_1=igralec1.get()
+ #           self.ime_2=igralec2.get()
+            self.nova_igra(Racunalnik(self,Nakljucje(self)))
+            ime.destroy()
+            pass
+    
     def pomoc(self):
 
         def preklici():
@@ -585,7 +609,7 @@ class Gui():
         print(Igralec2)
         return "Igralec2"
         
-    def nova_igra(self, Igralec_2):
+    def nova_igra(self, Igralec_2,barva='sienna4'):
         print('zaganjam novo igro')
 #        print(Igralec_2)
         """Vzpostavi zaèetno stanje. Igralec_1 je vedno človek."""
@@ -603,9 +627,6 @@ class Gui():
         #Določimo igralce
         self.igralec_1 = Clovek(self)
         self.igralec_2 = Igralec_2
-        #print(Igralec_2)
-        #print(self.igralec_2)
-        #print(type (self.igralec_2))
         
         #Narišemo polje:
         for i in range(VISINA):
@@ -613,7 +634,7 @@ class Gui():
                 if i==0 and j==0:
                     self.koscek(0,0,'red')
                 else:
-                    self.koscki[i][j]=self.koscek(i,j,'sienna4')
+                    self.koscki[i][j]=self.koscek(i,j,barva)
         
         #Prvi je na potezi človek
         self.napis.set("Ti si na potezi.")
@@ -630,10 +651,10 @@ class Gui():
             self.pobrisi(i,j)
             if stanje == NI_KONEC:
                 # Potezo ima naslednji igralec. To moramo povedati na zaslonu in klicati metodo, da bo igral.
-                if self.igra.na_potezi == IGRALEC_1:
+                if self.igra.na_potezi == self.ime_1:
                     self.napis.set("Na potezi je 1. igralec.")
                     self.igralec_1.igraj()
-                elif self.igra.na_potezi == IGRALEC_2:
+                elif self.igra.na_potezi == self.ime_2:
                     self.napis.set("Na potezi je 2. igralec.")
                     self.igralec_2.igraj()
             else:
@@ -655,29 +676,18 @@ class Gui():
 
     def koncaj_igro(self):
         igralec=self.igra.nasprotnik(self.igra.zgodovina[-1][1])
-   #     print(igralec)
-        self.napis.set("Igre je konec. Zmagal je {0}. igralec".format(self.igra.nasprotnik(self.igra.zgodovina[-1][1])))
-#        print(self.igra.zgodovina[-1][1])
-        if igralec == "1":
+        self.napis.set("Igre je konec. Zmagal je {0}. igralec".format(igralec))
+        if igralec == self.ime_1:
             print("čestitam, zmagal/a si!")
             self.koncno_okno(igralec)
         else:
             print("izgubil/a si")
             self.koncno_okno(igralec)
-#        print(self.igra.zgodovina)
-#        self.napis.set("Igre je konec. Zmagal je {0}. igralec".format(self.igra.nasprotnik(self.igra.zgodovina[-1][1])))
-        #pass
 
     def koncno_okno(self,igralec):
         #print(igralec)
         #print("uspelo mi je")
-        napis= "Čestitam, zmagal/a si :)" if igralec == "1" else "Izgubil/a si. Več sreče prihodnjič"
-        
-        def combine_funcs(*funcs):
-            def combined_func(*args, **kwargs):
-                for f in funcs:
-                    f(*args, **kwargs)
-            return combined_func
+        napis= "Čestitam, zmagal/a si :)" if igralec == self.ime_1 else "Izgubil/a si. Več sreče prihodnjič"
         
         self.konec = Toplevel()
         self.konec.title("Konec igre")
@@ -695,40 +705,34 @@ class Gui():
                  justify="center").grid(row=1, column=1, columnspan =2,sticky=E+W+N+S)
         
     
-        gumb_da=Button(self.konec, text="da",width=8, height=2,command=combine_funcs(lambda: preveri(self.tezavnost),self.konec.destroy))
+        gumb_da=Button(self.konec, text="da",width=8, height=2,command=self.combine_funcs(lambda: self.preveri(self.tezavnost),self.konec.destroy))
         gumb_da.grid(row=3,column=1)
         
         gumb_ne=Button(self.konec, text="ne",width=8, height=2, command=self.konec.destroy)
         gumb_ne.grid(row=3,column=2)
+        
+    def combine_funcs(self,*funcs):
+            def combined_func(*args, **kwargs):
+                for f in funcs:
+                    f(*args, **kwargs)
+            return combined_func
 
-        def preveri(tezavnost):
-            if self.tezavnost == None:
-                self.nova_igra(Racunalnik(self,Nakljucje(self)))
-            elif str(self.tezavnost) == "<class '__main__.Nakljucje'>":
-                self.nova_igra(Racunalnik(self,Nakljucje(self)))
-            elif str(self.tezavnost) == "<class '__main__.Medium'>":
-                self.nova_igra(Racunalnik(self,Medium(self)))
-            elif str(self.tezavnost) == "<class '__main__.Minimax'>":
-                self.nova_igra(Racunalnik(self,Minimax(self)))
-            else:
-                print("ni ok")
-
-
-#################################################################
-def main():
-    root = Tk()
-    root.title("Chomp")
-    aplikacija=Gui(root)
-    root.mainloop()
-
-if __name__ == "__main__":
-    main()
-       
+    def preveri(self,tezavnost):
+        if self.tezavnost == None:
+            self.nova_igra(Racunalnik(self,Nakljucje(self)))
+        elif str(self.tezavnost) == "<class '__main__.Nakljucje'>":
+            self.nova_igra(Racunalnik(self,Nakljucje(self)))
+        elif str(self.tezavnost) == "<class '__main__.Medium'>":
+            self.nova_igra(Racunalnik(self,Medium(self)))
+        elif str(self.tezavnost) == "<class '__main__.Minimax'>":
+            self.nova_igra(Racunalnik(self,Minimax(self)))
+        else:
+            print("ni ok")       
 
 #####################################################
 ## Glavni program
-##if __name__ == "__main__":
-##    root = Tk()
-##    root.title("Chomp")
-##    aplikacija = Gui(root)
-##    root.mainloop()
+if __name__ == "__main__":
+    root = Tk()
+    root.title("Chomp")
+    aplikacija = Gui(root)
+    root.mainloop()
