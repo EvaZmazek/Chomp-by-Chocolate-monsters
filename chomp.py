@@ -386,6 +386,11 @@ class Gui():
         igra_menu = Menu(master)
         menu.add_cascade(label="Igra", menu=igra_menu)
 
+        #Podmenu Nastavitve
+        pomoc_menu = Menu(master)
+        menu.add_cascade(label="Nastavitve", menu=pomoc_menu)
+        pomoc_menu.add_command(label="Igralno polje", command=self.spremeni_visino_in_sirino)
+
         #Podmenu Pomoč
         pomoc_menu = Menu(master)
         menu.add_cascade(label="Pomoč", menu=pomoc_menu)
@@ -410,6 +415,68 @@ class Gui():
         
         #Klik na polje
         self.plosca.bind("<Button-1>", self.plosca_klik)
+
+    def spremeni_visino_in_sirino(self):
+        """pomozna funkcija, ki spremeni visino in sirino igralnega polja oz. cokolade"""
+        print("spreminjam visino in sirino")
+        global VISINA
+        global SIRINA
+
+        # Ustvari novo okno za izbiro visine in sirine
+        spremeni=Toplevel()
+        spremeni.grab_set()                                   # Postavi fokus na okno in ga obdrži
+        spremeni.title("Nastavitve igralnega polja")                # Naslov okna
+        spremeni.resizable(width=False, height=False)         # Velikosti okna ni mogoče spreminjati
+
+        spremeni.grid_columnconfigure(0, minsize=40)         # Nastavitev minimalne širine ničtega stolpca
+        spremeni.grid_columnconfigure(5, minsize=40)         # Nastavitev minimalne širine drugega stolpca
+        spremeni.grid_rowconfigure(0, minsize=80)             # Nastavitev minimalne višine ničte vrstice
+        spremeni.grid_rowconfigure(6, minsize=10)             # Nastavitev minimalne višine šeste vrstice
+
+        Label(spremeni, text="Nastavitve igralnega polja", font=("Helvetica", 20)).grid(row=0, column=1, columnspan=4)
+
+        Label(spremeni, text="Visina:").grid(row=2, column=1, sticky="E")
+        Label(spremeni, text="Sirina:").grid(row=3, column=1, sticky="E")
+
+        visina = Entry(spremeni, font="Helvetica 12", width=10)  # Vnosno polje za visino
+        visina.grid(row=2, column=2)
+        visina.insert(0, VISINA)                                     # Privzeta visina
+        sirina = Entry(spremeni, font="Helvetica 12", width=10)  # Vnosno polje za sirino
+        sirina.grid(row=3, column=2)
+        sirina.insert(0, SIRINA)                                     # Privzeta sirina
+        # ---------------------------------------------------------
+
+        # Gumba za začetek nove igre in preklic
+        Button(spremeni, text="Prekliči", width=8, height=2,command= lambda: spremeni.destroy()).grid(row=4, column=1)
+        Button(spremeni, text="Začni igro", width=8, height=2,command= lambda: visina_sirina()).grid(row=4, column=2)
+
+        def visina_sirina():
+            global VISINA
+            global SIRINA
+            vi=visina.get()
+            si=sirina.get()
+            visi=uredi_vnos(vi)
+            siri=uredi_vnos(si)
+            if visi is not None:
+                visin=visi
+            else:
+                visin=VISINA
+            if siri is not None:
+                sirin=siri
+            else:
+                sirin=SIRINA
+            VISINA=visin
+            SIRINA=sirin
+            self.nova_igra(Racunalnik(self, Nakljucje(self)))
+            spremeni.destroy()
+            
+            print(visin,sirin)
+
+        def uredi_vnos(stringa):
+            for i in stringa:
+                if i not in "0123456789":
+                    return None
+            return int(stringa)
 
     def pomoc(self):
 
