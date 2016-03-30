@@ -10,34 +10,11 @@ VISINA=5
 IGRALEC_1 = "1"
 IGRALEC_2 = "2"
 NI_KONEC = "ni konec"
+KONEC = "konec"
 
 MINIMAX_GLOBINA = 3
 
-#premaknila sem jo v razred Igra
-##def nasprotnik(igralec):
-##    if igralec == IGRALEC_1:
-##        return IGRALEC_2
-##    elif igralec == IGRALEC_2:
-##        return IGRALEC_1
-##    else:
-##        assert False, "neveljaven nasprotnik"
-
-#Premaknila sem jo v razred Igra
-##def polepsaj(zap, i, j):
-##    # Funkcija vrne zaporedje, kakor izgleda po tem ko potegnemo
-##    # potezo (okrajša stolpce na višino i oz. jih pusti enake, če
-##    # je i > trenutne višine). Pobriše tudi ničle s konca.
-##    if (i,j) == (0,0):
-##        return [0]
-##    else:
-##        novo = [x for x in zap]
-##        for indeks in range(i, len(novo)):
-##            stara_vr = novo[indeks]
-##            #print(indeks)
-##            novo[indeks] = min(stara_vr, j)
-##        novo = [x for x in novo if x != 0]
-##        #print ("Izpisujem zaporedje po potezi ({0}, {1}): {2}".format(i,j,novo))
-##        return novo
+pickle.dump({'[0]': -1},  open( "poznane_vrednosti.p", "wb" ))
 
 ######################################################################
 ## Razred Igra
@@ -80,7 +57,7 @@ class Igra():
         """
         if self.zaporedje[0]>0:
             # Nihče še ni pojedel t.i. zastrupljenega koščka.
-            return NI_KONEC #"ni konec" #######res rabima spremenljivko na začetku?????????????????
+            return NI_KONEC 
         else:
             return self.na_potezi
             # Mogoče bo treba popravit v nasprotnika, če bo metoda
@@ -109,7 +86,7 @@ class Igra():
             if stanje == NI_KONEC: ####tudi tu
                 self.na_potezi = self.nasprotnik(self.na_potezi)
             else:
-                self.na_potezi = None
+                self.na_potezi = KONEC
                 # Igre je konec, nihče ne sme več narediti poteze.
             return stanje
     #a kje sploh uporabiva to funkcijo? lahko naredima razveljavi v meniju 
@@ -246,7 +223,7 @@ class Nakljucje():
 
 #######################################################################
 ## Medium:
-class Medium():
+class Rekurzija():
     def __init__(self, gui):
         self.gui = gui
         self.igra = None
@@ -257,7 +234,7 @@ class Medium():
         self.igra = igra
         self.prekinitev = False
         self.poteza = None
-        (poteza, vrednost) = self.medium()
+        (poteza, vrednost) = self.rekurzija()
         self.igra = None
         if not self.prekinitev:
             logging.debug("Medium: poteza{0}".format(poteza))
@@ -265,7 +242,7 @@ class Medium():
         #else:
             #print("Klicana je bila prekinitev")
             
-    def medium(self):
+    def rekurzija(self):
         if self.prekinitev:
             logging.debug("Medium prekinja")
             return (None, 0) # Pri nakljucju vrednost poteze ni pomembna.
@@ -336,8 +313,8 @@ class Medium():
 
     def prekini(self):
         self.prekinitev = True
-
-#######################################################################
+        
+######################################################################################
 ## Minimax:
 class Minimax():
     def __init__(self, globina): # ne sme operirati z gui-em
@@ -355,27 +332,35 @@ class Minimax():
         self.prekinitev = True
 
     def izracunaj_potezo(self, igra):
-##        self.igra = igra
-##        self.prekinitev = False
-##        self.poteza = None
-##        (poteza, vrednost) = self.minimax()
-##        self.igra = None
-##        if not self.prekinitev:
-##            logging.debug("Nakljucje: poteza{0}".format(poteza))
-##            self.poteza = poteza
-##        print("zaganjam Minimax")
-        pass
+        self.igra = igra
+        self.prekinitev = False
+        self.poteza = None
+        (poteza, vrednost) = self.minimax(3,True)
+        self.igra = None
+        if not self.prekinitev:
+            logging.debug("Minimax: poteza{0}".format(poteza))
+            self.poteza = poteza
+        #pass
 
     def vrednost_pozicije(self):
-        ### Ne moreš dat seznama za ključ v slovarju!!!!
-        pass
+        poznane_vrednosti = pickle.load( open( "poznane_vrednosti.p", "rb" ) )
+        if self.igra.zaporedje == [0]:
+            return -Minimax.NESKONCNO
+        elif str(self.igra.zaporedje) in poznane_vrednosti:
+            return poznane_vrednosti.get(str(self.igra.zaporedje))
+        else:
+            return 0
     
     def minimax(self, globina, maksimiziramo):
+        poznane_vrednosti = pickle.load( open( "poznane_vrednosti.p", "rb" ) )
+
+        
+        #print("Prvič printam zaporedje v minimaxu: {0}".format(self.igra.zaporedje))
         if self.prekinitev:
             logging.debug("Minimax prekinja")
             return (None, 0)
         stanje = self.igra.stanje_igre()
-        if stanje in (IGRALEC_1, IGRALEC_2):
+        if stanje in (IGRALEC_1, IGRALEC_2, KONEC):
             """ Igre je konec. """
             if stanje == IGRALEC_2:
                 return (None, -Minimax.ZMAGA)
@@ -391,7 +376,8 @@ class Minimax():
                     najboljsa_poteza = None
                     for p in poteze:
                         # Računamo, kaj se zgodi če potezo povlečemo
-                        self.igra.povleci_potezo(p)
+                        i,j = p
+                        self.igra.povleci_potezo(i,j)
                         # Kakšna je največja možna vrednost poteze pri vseh možnih nadaljevanjih,
                         # nam pove minimax, ki vrača (poteza, vrednost) - zato gledamo le 2.
                         # element v tuple-u.
@@ -400,24 +386,32 @@ class Minimax():
                         if vrednost > najvecja_vrednost:
                             najboljsa_poteza = p
                             najvecja_vrednost = vrednost
+                    if str(self.igra.zaporedje) not in poznane_vrednosti:
+                        poznane_vrednosti[str(self.igra.zaporedje)] = najvecja_vrednost
+                        pickle.dump( poznane_vrednosti, open( "poznane_vrednosti.p", "wb" ) )
+                    return (najboljsa_poteza, najvecja_vrednost)
                 else:
                     najmanjsa_vrednost = Minimax.NESKONCNO
                     najboljsa_poteza = None
                     for p in poteze:
                         # Računamo, kaj se zgodi če potezo povlečemo
-                        self.igra.povleci_potezo(p)
+                        i,j = p
+                        self.igra.povleci_potezo(i,j)
                         # Kakšna je največja možna vrednost poteze pri vseh možnih nadaljevanjih,
                         # nam pove minimax, ki vrača (poteza, vrednost) - zato gledamo le 2.
                         # element v tuple-u.
                         vrednost=self.minimax(globina - 1, not maksimiziramo)[1]
                         self.igra.razveljavi()
-                        if vrednost < najvecja_vrednost:
+                        if vrednost < najmanjsa_vrednost:
                             najboljsa_poteza = p
                             najmanjsa_vrednost = vrednost
+                    return (najboljsa_poteza, najmanjsa_vrednost)
                         
                     
         else:
-            assert False, "Nakljucje: nedefinirano stanje igre"
+            print(stanje)
+            print(self.igra.zaporedje)
+            assert False, "Minimax: nedefinirano stanje igre"
         
         pass
 
@@ -442,8 +436,8 @@ class Gui():
         menu.add_cascade(label="Igra", menu=igra_menu)
         igra_menu.add_command(label="2 igralca",command=lambda: self.nova_igra(Clovek(self))) # command mora bit funkcija
         igra_menu.add_command(label="Proti racunalniku (easy)",command=lambda: self.doloci_igralce(Nakljucje))
-        igra_menu.add_command(label="Proti racunalniku (medium)", command=lambda: self.doloci_igralce(Medium))
-        igra_menu.add_command(label="Proti racunalniku (hard)")#, command=lambda: self.doloci_igralce(Minimax))
+        igra_menu.add_command(label="Proti racunalniku (medium)", command=lambda: self.doloci_igralce(Rekurzija))
+        igra_menu.add_command(label="Proti racunalniku (hard)", command=lambda: self.doloci_igralce(Minimax))
         igra_menu.add_command(label="Izhod",                      command=master.destroy)
         
         #Podmenu Nastavitve
@@ -621,10 +615,10 @@ class Gui():
     def doloci_igralce(self,Igralec2):
         if Igralec2==Nakljucje:
             igra=Racunalnik(self, Nakljucje(self))
-        elif Igralec2==Medium:
-            igra=Racunalnik(self, Medium(self))
+        elif Igralec2==Rekurzija:
+            igra=Racunalnik(self, Rekurzija(self))
         elif Igralec2==Minimax:
-            igra=racunalnik(self, Minimac(self))
+            igra=Racunalnik(self, Minimax(self))
         else: assert False, "nekaj je šlo narobe"
         self.tezavnost=Igralec2
         self.nova_igra(igra)
@@ -742,8 +736,8 @@ class Gui():
             self.nova_igra(Racunalnik(self,Nakljucje(self)))
         elif str(self.tezavnost) == "<class '__main__.Nakljucje'>":
             self.nova_igra(Racunalnik(self,Nakljucje(self)))
-        elif str(self.tezavnost) == "<class '__main__.Medium'>":
-            self.nova_igra(Racunalnik(self,Medium(self)))
+        elif str(self.tezavnost) == "<class '__main__.Rekurzija'>":
+            self.nova_igra(Racunalnik(self,Rekurzija(self)))
         elif str(self.tezavnost) == "<class '__main__.Minimax'>":
             self.nova_igra(Racunalnik(self,Minimax(self)))
         else:
