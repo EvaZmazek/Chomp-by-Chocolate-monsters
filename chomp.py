@@ -46,11 +46,9 @@ class Igra():
     
     def __init__(self):
         self.zaporedje=[VISINA for i in range(SIRINA)]
-        #self.koscki=[[None for i in range(SIRINA)] for j in range(VISINA)] #tega tudi verjetno več ne rabiva
-        # Ustvarimo si matriko z enakimi dimenzijami kot čokolada, v kateri
-        # si bomo zapomnili, katere koščke sta igralca že pojedla.
+        #ustvarimo zaporedje, s pomočjo katerega vidimo, kateri koščki čokolade so še v igri
         
-        self.na_potezi = IGRALEC_1 # Vedno igro odpre človek.
+        self.na_potezi = IGRALEC_1      # Vedno igro odpre človek.
         
         self.zgodovina = []
         # Zgodovina igre je prazna, ko igro začnemo (ne glede na to, ali
@@ -59,8 +57,6 @@ class Igra():
     def shrani_pozicijo(self):
         zap=self.zaporedje
         self.zgodovina.append((zap, self.na_potezi))
-        #print("Izpisujem zgodovino:")
-        #print(self.zgodovina)
 
     def kopija(self):
         k=Igra()
@@ -69,12 +65,10 @@ class Igra():
         return k
 
     def veljavne_poteze(self):
-        #print(self.zaporedje)
         poteze=[]
         for j in range(len(self.zaporedje)):
             for i in range(self.zaporedje[j]):
                 poteze.append((j,i))
-        #print(poteze)
         return poteze
 
     def stanje_igre(self):
@@ -86,7 +80,7 @@ class Igra():
         """
         if self.zaporedje[0]>0:
             # Nihče še ni pojedel t.i. zastrupljenega koščka.
-            return NI_KONEC
+            return NI_KONEC #"ni konec" #######res rabima spremenljivko na začetku?????????????????
         else:
             return self.na_potezi
             # Mogoče bo treba popravit v nasprotnika, če bo metoda
@@ -102,31 +96,23 @@ class Igra():
             Gui zaznal kot neveljavno potezo"""
             assert False, "To je neveljavna poteza"
             return None
-###############################        
-##to je bilo prej        
-##        if (len(self.zaporedje)<=i) or (self.zaporedje[i]<j) :
-##            #povleči hočemo neveljavno potezo
-##            assert False, "To je neveljavna poteza"
-##            #return None
-###############################
         else:
             # Pozicijo zapišemo v zgodovino:
             self.shrani_pozicijo()
             # Spremenimo self.zaporedje, ker povlečemo potezo in se pozicija
             # spremeni:
             novi=self.polepsaj(self.zaporedje, i, j)
-#            print(novi)
             self.zaporedje = novi
             stanje=self.stanje_igre()
             # Če še ni konec igre, moramo zamenjati igralca, ki je na vrsti,
             # v vsakem primeru pa nato vrniti stanje igre
-            if stanje == NI_KONEC:
+            if stanje == NI_KONEC: ####tudi tu
                 self.na_potezi = self.nasprotnik(self.na_potezi)
             else:
                 self.na_potezi = None
                 # Igre je konec, nihče ne sme več narediti poteze.
             return stanje
-
+    #a kje sploh uporabiva to funkcijo? lahko naredima razveljavi v meniju 
     def razveljavi(self):
         (self.zaporedje, self.na_potezi)=self.zgodovina.pop()
 
@@ -140,10 +126,8 @@ class Igra():
             novo = [x for x in zap]
             for indeks in range(i, len(novo)):
                 stara_vr = novo[indeks]
-                #print(indeks)
                 novo[indeks] = min(stara_vr, j)
             novo = [x for x in novo if x != 0]
-            #print ("Izpisujem zaporedje po potezi ({0}, {1}): {2}".format(i,j,novo))
             return novo
 
     def nasprotnik(self,igralec):
@@ -181,7 +165,6 @@ class Racunalnik():
         self.gui = gui
         self.algoritem = algoritem
         self.mislec = None
-#        print(algoritem)
 
     def igraj(self):
         self.mislec = threading.Thread(
@@ -195,8 +178,7 @@ class Racunalnik():
         if self.algoritem.poteza is not None:
             i, j = self.algoritem.poteza
             self.gui.povleci_potezo(i,j)
-            self.mislec = None
-            #ustavi razmišljanje - "ubije" thread
+            self.mislec = None      #ustavi razmišljanje - "ubije" thread
         else:
             self.gui.plosca.after(100, self.preveri_potezo)
 
@@ -204,7 +186,7 @@ class Racunalnik():
         if self.mislec:
             logging.debug("Prekinjam {0}".format(self.mislec))
             self.algoritem.prekini()
-            self.mislec.join() # Počakamo, da se vlakno ustavi
+            self.mislec.join()      # Počakamo, da se vlakno ustavi
             self.mislec = None
 
     def klik(self, i, j):
@@ -233,7 +215,6 @@ class Nakljucje():
             self.poteza = poteza
         #else:
             #print("Klicana je bila prekinitev")
-##        print("zaganjam Nakljucje")
             
 
     def nakljucje(self):
@@ -283,9 +264,7 @@ class Medium():
             self.poteza = poteza
         #else:
             #print("Klicana je bila prekinitev")
-##        print("zaganjam Medium")
             
-
     def medium(self):
         if self.prekinitev:
             logging.debug("Medium prekinja")
@@ -298,17 +277,34 @@ class Medium():
             else:
                 return (None, 0)#-Nakljucje.ZMAGA)
         elif stanje == NI_KONEC:
-            return (self.zrebaj(), 0)
+            return (self.izracunaj(), 0)
         else:
             assert False, "Medium: nedefinirano stanje igre"
 
-    def zrebaj(self):
-        seznam=self.gui.igra.veljavne_poteze()
-        if len(seznam)>1:
-            novseznam=seznam[1:]
+    def izracunaj(self):
+        veljavne=self.gui.igra.veljavne_poteze()
+        zaporedje=self.gui.igra.zaporedje
+        if len(veljavne)>1:
+            novseznam=veljavne[1:]
+            if (1,1) not in novseznam:
+                if zaporedje[0]==1 and zaporedje[1]>0:
+                    return (1,0)
+                elif len(zaporedje)==1 and zaporedje[0]>1:
+                    return (0,1)
+                else:
+                    a=len(zaporedje)
+                    b=zaporedje[0]
+                    if a==b:
+                        return (a-1,0)
+                    elif a<b:
+                        return (0,a)
+                    else:
+                        return (b,0)
+            else:
+                return choice(novseznam)
             return choice(novseznam)
         else:
-            return seznam[0]
+            return veljavne[0]
 
     def prekini(self):
         self.prekinitev = True
@@ -407,15 +403,20 @@ class Gui():
         menu = Menu(master)
         master.config(menu=menu)
 
-##        #nastavitev atributov
-##        self.pomoc=None  # Okno za pomoč pri igranju igre, ko ni odprto je None.
+        #nastavitev atributov
+#        self.pomoc=None       # Okno za pomoč pri igranju igre, ko ni odprto je None.
         self.ime_1="1"
         self.ime_2="2"
-        self.tezavnost=None
+        self.tezavnost=None     #pomaga nam ob koncu igre, da ponovimo igro iste težavnosti
 
         #Podmenu za izbiro igre
         igra_menu = Menu(master)
         menu.add_cascade(label="Igra", menu=igra_menu)
+        igra_menu.add_command(label="2 igralca",command=lambda: self.nova_igra(Clovek(self))) # command mora bit funkcija
+        igra_menu.add_command(label="Proti racunalniku (easy)",command=lambda: self.doloci_igralce(Nakljucje))
+        igra_menu.add_command(label="Proti racunalniku (medium)", command=lambda: self.doloci_igralce(Medium))
+        igra_menu.add_command(label="Proti racunalniku (hard)")#, command=lambda: self.doloci_igralce(Minimax))
+        igra_menu.add_command(label="Izhod",                      command=master.destroy)
         
         #Podmenu Nastavitve
         pomoc_menu = Menu(master)
@@ -427,12 +428,6 @@ class Gui():
         pomoc_menu = Menu(master)
         menu.add_cascade(label="Pomoč", menu=pomoc_menu)
         pomoc_menu.add_command(label="Navodila igre", command=self.pomoc)
-
-        igra_menu.add_command(label="2 igralca",command=lambda: self.nova_igra(Clovek(self))) # command mora bit funkcija
-        igra_menu.add_command(label="Proti racunalniku (easy)",command=lambda: self.doloci_igralce(Nakljucje))
-        igra_menu.add_command(label="Proti racunalniku (medium)", command=lambda: self.doloci_igralce(Medium))
-        igra_menu.add_command(label="Proti racunalniku (hard)")#, command=lambda: self.doloci_igralce(Minimax))
-        igra_menu.add_command(label="Izhod",                      command=master.destroy)
 
         #Naredimo polje z opisom stanja/pozicije:
         self.napis = StringVar(master, value="Kasneje bo tu pisalo, kateri igralec je na vrsti/kaj je bila zadnja poteza/kdo je zmagal")
@@ -446,6 +441,7 @@ class Gui():
         #Naredimo polje za čokolado:
         self.plosca = Canvas(master, width=SIRINA*100 + 20, height=VISINA*100 + 60)
         self.plosca.grid(row=1, column=0)
+        master.resizable(0,0)   # Onemogoči resize.
         self.plosca.bind("<Button-1>", self.plosca_klik)    #Klik na polje
 
     def spremeni_visino_in_sirino(self,master):
@@ -483,7 +479,6 @@ class Gui():
         Button(spremeni, text="Začni igro", width=8, height=2,command= lambda: visina_sirina(master)).grid(row=4, column=2)
 
         def visina_sirina(master):
-            #self.plosca.destroy()
             global VISINA
             global SIRINA
             visi=uredi_vnos(visina.get())
@@ -504,7 +499,7 @@ class Gui():
             if int(stringa) > 15:
                 return None
             return int(stringa)
-
+#---------------------------------------------------------------------naredima, če bo čas
     def spremeni_ime(self):
         print("spreminjam imena")
         # Ustvari novo okno za izbiro visine in sirine
@@ -533,23 +528,23 @@ class Gui():
 
         # Gumba za začetek nove igre in preklic
         Button(ime, text="Prekliči", width=8, height=2,command= lambda: ime.destroy()).grid(row=4, column=1)
-        Button(ime, text="Začni igro", width=8, height=2,command= lambda: spremeni_ime()).grid(row=4, column=2)
+        Button(ime, text="Začni igro", width=8, height=2,command= lambda: spremeni_imee()).grid(row=4, column=2)
 
-        def spremeni_ime():
+        def spremeni_imee():
             self.ime_1=igralec1.get()
  #           self.ime_2=igralec2.get()
             self.nova_igra(Racunalnik(self,Nakljucje(self)))
             ime.destroy()
             pass
-    
+#------------------------------------------------------------------------------------------------    
     def pomoc(self):
+        #self.pomoc=None
+##        def preklici():
+##            """Pomožna funkcija, ki zapre okno in nastavi atribut self.help na None."""
+##            self.pomoc.destroy()
+##           self.pomoc = None
 
-        def preklici():
-            """Pomožna funkcija, ki zapre okno in nastavi atribut self.help na None."""
-            self.pomoc.destroy()
-            self.pomoc = None
-
-        # Preveri, če je okno že ustvarjeno, če je ga da na vrh in se vrne.
+       # Preveri, če je okno že ustvarjeno, če je ga da na vrh in se vrne.
 ##        if self.pomoc is not None:
 ##            pass
 ##            self.pomoc.lift()
@@ -559,7 +554,7 @@ class Gui():
         self.pomoc = Toplevel()
         self.pomoc.title("Navodila igre")
         self.pomoc.resizable(width=False, height=False)
-        self.pomoc.protocol("WM_DELETE_WINDOW", preklici)
+#        self.pomoc.protocol("WM_DELETE_WINDOW", preklici)
 
         self.pomoc.grid_columnconfigure(0, minsize=600)
         self.pomoc.grid_rowconfigure(0, minsize=80)             # Nastavitev minimalne višine ničte vrstice
@@ -596,7 +591,6 @@ class Gui():
         return self.plosca.create_rectangle(15 + j*100, 55 + i*100, 105 + j*100, 145 + i*100, fill=barva)
 
     def doloci_igralce(self,Igralec2):
-        #print(Igralec2)
         if Igralec2==Nakljucje:
             igra=Racunalnik(self, Nakljucje(self))
         elif Igralec2==Medium:
@@ -604,10 +598,8 @@ class Gui():
         elif Igralec2==Minimax:
             igra=racunalnik(self, Minimac(self))
         else: assert False, "nekaj je šlo narobe"
-        self.nova_igra(igra)
         self.tezavnost=Igralec2
-        print(Igralec2)
-        return "Igralec2"
+        self.nova_igra(igra)
         
     def nova_igra(self, Igralec_2,barva='sienna4'):
         print('zaganjam novo igro')
@@ -649,7 +641,7 @@ class Gui():
         else:
             # Poteza je veljavna. V igri smo jo že potegnili, zdaj moramo spremeniti še prikaz.
             self.pobrisi(i,j)
-            if stanje == NI_KONEC:
+            if stanje == NI_KONEC: #tu ga še uporabiva
                 # Potezo ima naslednji igralec. To moramo povedati na zaslonu in klicati metodo, da bo igral.
                 if self.igra.na_potezi == self.ime_1:
                     self.napis.set("Na potezi je 1. igralec.")
@@ -678,10 +670,10 @@ class Gui():
         igralec=self.igra.nasprotnik(self.igra.zgodovina[-1][1])
         self.napis.set("Igre je konec. Zmagal je {0}. igralec".format(igralec))
         if igralec == self.ime_1:
-            print("čestitam, zmagal/a si!")
+##            print("čestitam, zmagal/a si!")
             self.koncno_okno(igralec)
         else:
-            print("izgubil/a si")
+##            print("izgubil/a si")
             self.koncno_okno(igralec)
 
     def koncno_okno(self,igralec):
@@ -692,7 +684,7 @@ class Gui():
         self.konec = Toplevel()
         self.konec.title("Konec igre")
         self.konec.resizable(width=False, height=False)
-        self.konec.protocol("WM_DELETE_WINDOW", self.konec.destroy)
+#        self.konec.protocol("WM_DELETE_WINDOW", self.konec.destroy)
 
         self.konec.grid_columnconfigure(0, minsize=45)
         self.konec.grid_columnconfigure(3, minsize=45)
