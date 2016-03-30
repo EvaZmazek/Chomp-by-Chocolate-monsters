@@ -301,10 +301,16 @@ class Medium():
                     else:
                         return (b,0)
             else:
-                return choice(novseznam)
-            return choice(novseznam)
+                return choice(self.L_seznam(novseznam))
         else:
             return veljavne[0]
+        
+    def L_seznam(self,seznam):
+        novi=[]
+        for i,j in seznam:
+            if i!=0 and j!=0:
+                novi.append((i,j))
+        return novi
 
     def prekini(self):
         self.prekinitev = True
