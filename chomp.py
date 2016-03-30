@@ -284,6 +284,10 @@ class Medium():
     def izracunaj(self):
         veljavne=self.gui.igra.veljavne_poteze()
         zaporedje=self.gui.igra.zaporedje
+        povej=self.izracunaj1(veljavne,zaporedje)
+        return(povej)
+        
+    def izracunaj1(self, veljavne,zaporedje):
         if len(veljavne)>1:
             novseznam=veljavne[1:]
             if (1,1) not in novseznam:
@@ -301,15 +305,33 @@ class Medium():
                     else:
                         return (b,0)
             else:
-                return choice(self.L_seznam(novseznam))
+                veljavne1=self.L_seznam(novseznam)
+                zaporedje1=self.L_zaporedje(zaporedje)
+                povej_mi=self.izracunaj1(veljavne1,zaporedje1)
+                resitev=povej_mi
+                if resitev==(0,1):
+                    return (1,2)
+                elif resitev==(1,0):
+                    return (2,1)
+                else:
+                    x=resitev[0]
+                    y=resitev[1]
+                    return (x+1,y+1)
         else:
             return veljavne[0]
+        
+    def L_zaporedje(self,zaporedje):
+        novo=[]
+        for i in zaporedje:
+            if i>1:
+                novo.append(i-1)
+        return novo[1:]
         
     def L_seznam(self,seznam):
         novi=[]
         for i,j in seznam:
             if i!=0 and j!=0:
-                novi.append((i,j))
+                novi.append((i-1,j-1))
         return novi
 
     def prekini(self):
