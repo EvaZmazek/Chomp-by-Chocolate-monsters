@@ -316,6 +316,7 @@ class Rekurzija():
         
 ######################################################################################
 ## Minimax:
+## Minimax:
 class Minimax():
     def __init__(self, globina): # ne sme operirati z gui-em
         self.globina = globina # do katere globine iščemo
@@ -325,8 +326,8 @@ class Minimax():
         self.poteza = None # sem shrani izračunano potezo
 
 
-    ZMAGA = 10000
-    NESKONCNO = ZMAGA + 1
+    ZMAGA = 1
+    NESKONCNO = 2
 
     def prekini(self):
         self.prekinitev = True
@@ -335,85 +336,67 @@ class Minimax():
         self.igra = igra
         self.prekinitev = False
         self.poteza = None
-        (poteza, vrednost) = self.minimax(3,True)
+        (poteza, vrednost) = self.minimax(3,False)
         self.igra = None
         if not self.prekinitev:
             logging.debug("Minimax: poteza{0}".format(poteza))
             self.poteza = poteza
+            print("Minimax: poteza{0}".format(poteza))
         #pass
 
     def vrednost_pozicije(self):
         poznane_vrednosti = pickle.load( open( "poznane_vrednosti.p", "rb" ) )
-        if self.igra.zaporedje == [1]:
-            return -Minimax.NESKONCNO
-        elif str(self.igra.zaporedje) in poznane_vrednosti:
+        if str(self.igra.zaporedje) in poznane_vrednosti:
             return poznane_vrednosti.get(str(self.igra.zaporedje))
         else:
             return 0
     
     def minimax(self, globina, maksimiziramo):
-        poznane_vrednosti = pickle.load( open( "poznane_vrednosti.p", "rb" ) )
+        #Funkcija vraca (poteza, vrednost)
 
-        
-        #print("Prvič printam zaporedje v minimaxu: {0}".format(self.igra.zaporedje))
         if self.prekinitev:
-            logging.debug("Minimax prekinja")
-            return (None, 0)
+            print("Minimax prekinja")
+            return(None, 0)
         stanje = self.igra.stanje_igre()
-        if stanje in (IGRALEC_1, IGRALEC_2, KONEC):
-            """ Igre je konec. """
-            if stanje == IGRALEC_2:
+        if stanje in (IGRALEC_1,IGRALEC_2,KONEC):
+            # Igre je konec.
+            if (stanje == IGRALEC_1) or (self.igra.zgodovina[-1][1] == IGRALEC_1):
                 return (None, -Minimax.ZMAGA)
-            else:
+            elif stanje == IGRALEC_2 or (self.igra.zgodovina[-1][1] == IGRALEC_2):
                 return (None, Minimax.ZMAGA)
+            else:
+                assert False, "Napačno stanje"
         elif stanje == NI_KONEC:
             if globina == 0:
                 return (None, self.vrednost_pozicije())
             else:
-                poteze = self.igra.veljavne_poteze()
+                poteze=self.igra.veljavne_poteze()
+                shuffle(poteze)
                 if maksimiziramo:
                     najvecja_vrednost = -Minimax.NESKONCNO
                     najboljsa_poteza = None
-                    for p in poteze:
-                        # Računamo, kaj se zgodi če potezo povlečemo
-                        i,j = p
+                    for (i,j) in poteze:
                         self.igra.povleci_potezo(i,j)
-                        # Kakšna je največja možna vrednost poteze pri vseh možnih nadaljevanjih,
-                        # nam pove minimax, ki vrača (poteza, vrednost) - zato gledamo le 2.
-                        # element v tuple-u.
-                        vrednost=self.minimax(globina - 1, not maksimiziramo)[1]
-                        self.igra.razveljavi()
+                        vrednost = self.minimax(globina - 1, not maksimiziramo)[1]
                         if vrednost > najvecja_vrednost:
-                            najboljsa_poteza = p
-                            najvecja_vrednost = vrednost
-                    if str(self.igra.zaporedje) not in poznane_vrednosti:
-                        poznane_vrednosti[str(self.igra.zaporedje)] = najvecja_vrednost
-                        pickle.dump( poznane_vrednosti, open( "poznane_vrednosti.p", "wb" ) )
+                            najvecja_vrednost=vrednost
+                            najboljsa_poteza=(i,j)
+                        self.igra.razveljavi()
                     return (najboljsa_poteza, najvecja_vrednost)
                 else:
                     najmanjsa_vrednost = Minimax.NESKONCNO
                     najboljsa_poteza = None
-                    for p in poteze:
-                        # Računamo, kaj se zgodi če potezo povlečemo
-                        i,j = p
+                    for (i,j) in poteze:
                         self.igra.povleci_potezo(i,j)
-                        # Kakšna je največja možna vrednost poteze pri vseh možnih nadaljevanjih,
-                        # nam pove minimax, ki vrača (poteza, vrednost) - zato gledamo le 2.
-                        # element v tuple-u.
-                        vrednost=self.minimax(globina - 1, not maksimiziramo)[1]
-                        self.igra.razveljavi()
+                        vrednost = self.minimax(globina - 1, not maksimiziramo)[1]
                         if vrednost < najmanjsa_vrednost:
-                            najboljsa_poteza = p
-                            najmanjsa_vrednost = vrednost
+                            najmanjsa_vrednost=vrednost
+                            najboljsa_poteza=(i,j)
+                        self.igra.razveljavi()
                     return (najboljsa_poteza, najmanjsa_vrednost)
-                        
-                    
         else:
-            print(stanje)
-            print(self.igra.zaporedje)
-            assert False, "Minimax: nedefinirano stanje igre"
-        
-        pass
+            print("Stanje je spet None :(")
+                
 
 #####################################################################################################################################
 ## GUI:
