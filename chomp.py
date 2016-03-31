@@ -14,7 +14,7 @@ KONEC = "konec"
 
 MINIMAX_GLOBINA = 3
 
-pickle.dump({'[0]': -1},  open( "poznane_vrednosti.p", "wb" ))
+pickle.dump({'[1]': -1},  open( "poznane_vrednosti.p", "wb" ))
 
 ######################################################################
 ## Razred Igra
@@ -344,7 +344,7 @@ class Minimax():
 
     def vrednost_pozicije(self):
         poznane_vrednosti = pickle.load( open( "poznane_vrednosti.p", "rb" ) )
-        if self.igra.zaporedje == [0]:
+        if self.igra.zaporedje == [1]:
             return -Minimax.NESKONCNO
         elif str(self.igra.zaporedje) in poznane_vrednosti:
             return poznane_vrednosti.get(str(self.igra.zaporedje))
