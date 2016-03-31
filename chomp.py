@@ -14,7 +14,7 @@ KONEC = "konec"
 
 MINIMAX_GLOBINA = 3
 
-pickle.dump({'[1]': -1},  open( "poznane_vrednosti.p", "wb" ))
+#pickle.dump({'[1]': -1},  open( "poznane_vrednosti.p", "wb" ))
 
 ######################################################################
 ## Razred Igra
