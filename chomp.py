@@ -335,7 +335,7 @@ class Minimax():
         self.igra = igra
         self.prekinitev = False
         self.poteza = None
-        (poteza, vrednost) = self.minimax(3,False)
+        (poteza, vrednost) = self.minimax(MINIMAX_GLOBINA,False)
         self.igra = None
         if not self.prekinitev:
             logging.debug("Minimax: poteza{0}".format(poteza))
