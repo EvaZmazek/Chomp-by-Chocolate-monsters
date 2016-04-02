@@ -46,7 +46,7 @@ def preveri(seznam):
 def poberi_prave(seznam):
     koncni=[]
     for i in seznam:
-        if preveri(i):
+        if preveri(i) and len(i)<MAX and i[0]<MAX:
             koncni.append(i)
     return koncni
 
@@ -92,7 +92,6 @@ def zapisi_v_slovar(seznamcek,slovar):
                 del slovar[i]
     ##        pickle.dump({i: max(slovar[j]*(-1),slovar[i])},  open( "poznane_vrednosti.p", "wb" ))
         else:
-    ##        pickle.dump({i: slovar[j]*(-1)},  open( "poznane_vrednosti.p", "wb" ))
             slovar[i]=slovar[j]*(-1)
     return slovar
 
