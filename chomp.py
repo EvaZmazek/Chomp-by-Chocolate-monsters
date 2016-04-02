@@ -1,7 +1,6 @@
 from tkinter import *
 from random import *
 import threading
-#import argparse - kasneje bova rabili
 import logging
 import pickle
 
@@ -32,16 +31,19 @@ class Igra():
         # smo prej že kaj igrali).
 
     def shrani_pozicijo(self):
+        '''Funkcija zapiše trenutno pozicijo in igralca v zgodovino'''
         zap=self.zaporedje
         self.zgodovina.append((zap, self.na_potezi))
 
     def kopija(self):
+        '''Za potrebe vzporednega izvajanja v več threadih potrebujemo kopijo igre'''
         k=Igra()
         k.zaporedje = self.zaporedje
         k.na_potezi = self.na_potezi
         return k
 
     def veljavne_poteze(self):
+        """Preveri, katere poteze igralec sploh lahko potegne."""
         poteze=[]
         for j in range(len(self.zaporedje)):
             for i in range(self.zaporedje[j]):
@@ -69,34 +71,34 @@ class Igra():
            Vrne stanje_igre po potezi ali None, če je poteza neveljavna."""
         
         if (i,j) not in self.veljavne_poteze():
-            """ta poteza ni veljavna, zato jo lahko označimo kot None, ker bo to razred
+            """Ta poteza ni veljavna, zato jo lahko označimo kot None, ker bo to razred
             Gui zaznal kot neveljavno potezo"""
-            assert False, "To je neveljavna poteza"
             return None
         else:
             # Pozicijo zapišemo v zgodovino:
             self.shrani_pozicijo()
             # Spremenimo self.zaporedje, ker povlečemo potezo in se pozicija
-            # spremeni:
+            # spremeni. Funkcija polepsaj zapiše pozicijo v ustrezni obliki.
             novi=self.polepsaj(self.zaporedje, i, j)
             self.zaporedje = novi
             stanje=self.stanje_igre()
             # Če še ni konec igre, moramo zamenjati igralca, ki je na vrsti,
             # v vsakem primeru pa nato vrniti stanje igre
-            if stanje == NI_KONEC: ####tudi tu
+            if stanje == NI_KONEC:
                 self.na_potezi = self.nasprotnik(self.na_potezi)
             else:
                 self.na_potezi = KONEC
                 # Igre je konec, nihče ne sme več narediti poteze.
             return stanje
-    #a kje sploh uporabiva to funkcijo? lahko naredima razveljavi v meniju 
+ 
     def razveljavi(self):
+        """Funkcija razveljavi potezo. Potrebuje jo minimax."""
         (self.zaporedje, self.na_potezi)=self.zgodovina.pop()
 
     def polepsaj(self,zap, i, j):
-    # Funkcija vrne zaporedje, kakor izgleda po tem ko potegnemo
-    # potezo (okrajša stolpce na višino i oz. jih pusti enake, če
-    # je i > trenutne višine). Pobriše tudi ničle s konca.
+        """ Funkcija vrne zaporedje, kakor izgleda po tem ko potegnemo
+potezo (okrajša stolpce na višino i oz. jih pusti enake, če
+je i > trenutne višine). Pobriše tudi ničle s konca. """
         if (i,j) == (0,0):
             return [0]
         else:
@@ -108,6 +110,7 @@ class Igra():
             return novo
 
     def nasprotnik(self,igralec):
+        """Funkcija vrne nasprotnika igralca "igralec" """
         if igralec == IGRALEC_1:
             return IGRALEC_2
         elif igralec == IGRALEC_2:
@@ -190,10 +193,7 @@ class Nakljucje():
         if not self.prekinitev:
             logging.debug("Nakljucje: poteza{0}".format(poteza))
             self.poteza = poteza
-        #else:
-            #print("Klicana je bila prekinitev")
-            
-
+          
     def nakljucje(self):
         if self.prekinitev:
             logging.debug("Nakljucje prekinja")
@@ -202,15 +202,16 @@ class Nakljucje():
         if stanje in (IGRALEC_1, IGRALEC_2):
             """ Igre je konec. """
             if stanje == IGRALEC_2:
-                return (None, 0)#Nakljucje.ZMAGA)
+                return (None, 0)
             else:
-                return (None, 0)#-Nakljucje.ZMAGA)
+                return (None, 0)
         elif stanje == NI_KONEC:
             return (self.zrebaj(), 0)
         else:
             assert False, "Nakljucje: nedefinirano stanje igre"
 
     def zrebaj(self):
+        """Izmed veljavnih potez izbere naključno."""
         seznam=self.gui.igra.veljavne_poteze()
         if len(seznam)>1:
             novseznam=seznam[1:]
@@ -239,8 +240,6 @@ class Rekurzija():
         if not self.prekinitev:
             logging.debug("Medium: poteza{0}".format(poteza))
             self.poteza = poteza
-        #else:
-            #print("Klicana je bila prekinitev")
             
     def rekurzija(self):
         if self.prekinitev:
@@ -250,9 +249,9 @@ class Rekurzija():
         if stanje in (IGRALEC_1, IGRALEC_2):
             """ Igre je konec. """
             if stanje == IGRALEC_2:
-                return (None, 0)#Nakljucje.ZMAGA)
+                return (None, 0)
             else:
-                return (None, 0)#-Nakljucje.ZMAGA)
+                return (None, 0)
         elif stanje == NI_KONEC:
             return (self.izracunaj(), 0)
         else:
@@ -338,10 +337,7 @@ class Minimax():
         (poteza, vrednost) = self.minimax(MINIMAX_GLOBINA,False)
         self.igra = None
         if not self.prekinitev:
-            logging.debug("Minimax: poteza{0}".format(poteza))
             self.poteza = poteza
-            print("Minimax: poteza{0}".format(poteza))
-        #pass
 
     def vrednost_pozicije(self):
         if str(self.igra.zaporedje) in POZNANE_VREDNOSTI:
@@ -352,7 +348,6 @@ class Minimax():
     def minimax(self, globina, maksimiziramo):
         #Funkcija vraca (poteza, vrednost)
         if self.prekinitev:
-            print("Minimax prekinja")
             return(None, 0)
         stanje = self.igra.stanje_igre()
         if stanje in (IGRALEC_1,IGRALEC_2,KONEC):
@@ -406,7 +401,7 @@ class Minimax():
                         self.igra.razveljavi()
                     return (najboljsa_poteza, najmanjsa_vrednost)
         else:
-            print("Stanje je spet None :(")
+            assert False, "Minimax: Stanje je spet None :("
                 
 
 #####################################################################################################################################
