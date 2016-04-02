@@ -14,7 +14,7 @@ KONEC = "konec"
 
 MINIMAX_GLOBINA = 3
 
-#pickle.dump({'[1]': -1},  open( "poznane_vrednosti.p", "wb" ))
+POZNANE_VREDNOSTI = pickle.load( open( "poznane_vrednosti.p", "rb" ) )
 
 ######################################################################
 ## Razred Igra
@@ -335,7 +335,7 @@ class Minimax():
         self.igra = igra
         self.prekinitev = False
         self.poteza = None
-        (poteza, vrednost) = self.minimax(3,False)
+        (poteza, vrednost) = self.minimax(MINIMAX_GLOBINA,False)
         self.igra = None
         if not self.prekinitev:
             logging.debug("Minimax: poteza{0}".format(poteza))
@@ -344,17 +344,13 @@ class Minimax():
         #pass
 
     def vrednost_pozicije(self):
-        poznane_vrednosti = pickle.load( open( "poznane_vrednosti.p", "rb" ) )
-        #print(poznane_vrednosti['[1]'])
-        if str(self.igra.zaporedje) in poznane_vrednosti:
-            return poznane_vrednosti.get(str(self.igra.zaporedje))
+        if str(self.igra.zaporedje) in POZNANE_VREDNOSTI:
+            return POZNANE_VREDNOSTI.get(str(self.igra.zaporedje))
         else:
             return 0
     
     def minimax(self, globina, maksimiziramo):
         #Funkcija vraca (poteza, vrednost)
-        poznane_vrednosti = pickle.load( open( "poznane_vrednosti.p", "rb" ) )
-
         if self.prekinitev:
             print("Minimax prekinja")
             return(None, 0)
@@ -379,8 +375,8 @@ class Minimax():
                     najboljsa_poteza = None
                     for (i,j) in poteze:
                         self.igra.povleci_potezo(i,j)
-                        if str(self.igra.zaporedje) in poznane_vrednosti:
-                            vrednost = -poznane_vrednosti.get(str(self.igra.zaporedje))
+                        if str(self.igra.zaporedje) in POZNANE_VREDNOSTI:
+                            vrednost = -POZNANE_VREDNOSTI.get(str(self.igra.zaporedje))
                         else:
                             vrednost = self.minimax(globina - 1, not maksimiziramo)[1]
                         if vrednost > najvecja_vrednost:
@@ -390,28 +386,23 @@ class Minimax():
                             najmanjsa_vrednost=vrednost
                         self.igra.razveljavi()
                     if najmanjsa_vrednost == 1:
-                        poznane_vrednosti[str(self.igra.zaporedje)]=1
+                        POZNANE_VREDNOSTI[str(self.igra.zaporedje)]=1
                     if najvecja_vrednost == -1:
-                        poznane_vrednosti[str(self.igra.zaporedje)]=-1
-                    pickle.dump(poznane_vrednosti, open("poznane_vrednosti.p", "wb"))
-                    #print("Poznane vrednosti:")
-                    #print(poznane_vrednosti)
+                        POZNANE_VREDNOSTI[str(self.igra.zaporedje)]=-1
+                    pickle.dump(POZNANE_VREDNOSTI, open("poznane_vrednosti.p", "wb"))
                     return (najboljsa_poteza, najvecja_vrednost)
                 else:
                     najmanjsa_vrednost = Minimax.NESKONCNO
-                    najvecja_vrednost = -Minimax.NESKONCNO
                     najboljsa_poteza = None
                     for (i,j) in poteze:
                         self.igra.povleci_potezo(i,j)
-                        if str(self.igra.zaporedje) in poznane_vrednosti:
-                            vrednost = poznane_vrednosti.get(str(self.igra.zaporedje))
+                        if str(self.igra.zaporedje) in POZNANE_VREDNOSTI:
+                            vrednost = POZNANE_VREDNOSTI.get(str(self.igra.zaporedje))
                         else:
                             vrednost = self.minimax(globina - 1, not maksimiziramo)[1]
                         if vrednost < najmanjsa_vrednost:
                             najmanjsa_vrednost=vrednost
                             najboljsa_poteza=(i,j)
-                        if vrednost > najvecja_vrednost:
-                            najvecja_vrednost=vrednost
                         self.igra.razveljavi()
                     return (najboljsa_poteza, najmanjsa_vrednost)
         else:
