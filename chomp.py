@@ -4,6 +4,7 @@ import threading
 import logging
 import pickle
 
+#Konstante:
 SIRINA=7
 VISINA=5
 IGRALEC_1 = "1"
@@ -147,14 +148,19 @@ class Racunalnik():
         self.mislec = None
 
     def igraj(self):
+        """ Ko računalniku povemo, naj igra, mora zagnati vzporedni thread, da
+v njem razmišlja, med tem ko originalni vodi igro. Podati moramo kopijo igre,
+saj med razmišljanjem računalnik vleče poteze, a le 'v glavi' """
         self.mislec = threading.Thread(
             target = lambda: self.algoritem.izracunaj_potezo(self.gui.igra.kopija()))
-
         self.mislec.start()
 
         self.gui.plosca.after(100, self.preveri_potezo)
+        #Gui konstantno preverja, ali je računalnik že izračunal potezo.
 
     def preveri_potezo(self):
+        """Pogleda, ali je že našel potezo. Če je, jo potegne, sicer preverja
+na vsakih 100 ms."""
         if self.algoritem.poteza is not None:
             i, j = self.algoritem.poteza
             self.gui.povleci_potezo(i,j)
@@ -163,6 +169,8 @@ class Racunalnik():
             self.gui.plosca.after(100, self.preveri_potezo)
 
     def prekini(self):
+        """Če recimo igralec želi začeti novo igro, moramo prekiniti
+razmišljanje v drugem threadu."""
         if self.mislec:
             logging.debug("Prekinjam {0}".format(self.mislec))
             self.algoritem.prekini()
@@ -170,9 +178,8 @@ class Racunalnik():
             self.mislec = None
 
     def klik(self, i, j):
+        """Če človek ni na potezi, klike na ploščo ignoriramo."""
         pass
-        # povleci_potezo je tu metoda v razredu Gui(), ki kliče metodo
-        # povleci_potezo v razredu Igra()
         
 
 #######################################################################
@@ -185,6 +192,7 @@ class Nakljucje():
         self.prekinitev = False
 
     def izracunaj_potezo(self, igra):
+        """Funkcija ne vrača ničesar. Pripravi in nadzira nadaljevanje."""
         self.igra = igra
         self.prekinitev = False
         self.poteza = None
@@ -195,6 +203,7 @@ class Nakljucje():
             self.poteza = poteza
           
     def nakljucje(self):
+        """Glavna funkcija, vrača tuple (poteza, vrednost)"""
         if self.prekinitev:
             logging.debug("Nakljucje prekinja")
             return (None, 0) # Pri nakljucju vrednost poteze ni pomembna.
@@ -323,7 +332,7 @@ class Minimax():
         # Verjetno ne bova potrebovali: self.jaz = IGRALEC_2
         self.poteza = None # sem shrani izračunano potezo
 
-
+    # Konstanti:
     ZMAGA = 1
     NESKONCNO = 2
 
@@ -337,33 +346,44 @@ class Minimax():
         (poteza, vrednost) = self.minimax(MINIMAX_GLOBINA,False)
         self.igra = None
         if not self.prekinitev:
+            logging.debug("Minimax: poteza{0}".format(poteza))
             self.poteza = poteza
 
     def vrednost_pozicije(self):
+    # Ocena pozicije
         if str(self.igra.zaporedje) in POZNANE_VREDNOSTI:
             return POZNANE_VREDNOSTI.get(str(self.igra.zaporedje))
         else:
             return 0
     
     def minimax(self, globina, maksimiziramo):
-        #Funkcija vraca (poteza, vrednost)
+        """Glavna funkcija, vrača tuple (poteza, vrednost). Kličemo jo
+rekurzivno, po algoritmu minimax."""
         if self.prekinitev:
-            return(None, 0)
+            logging.debug("Minimax prekinja")
+            return (None, 0)
         stanje = self.igra.stanje_igre()
+
+# Igre je konec. Gledamo le, kdo je zmagal.
         if stanje in (IGRALEC_1,IGRALEC_2,KONEC):
-            # Igre je konec.
             if (stanje == IGRALEC_1) or (self.igra.zgodovina[-1][1] == IGRALEC_1):
                 return (None, -Minimax.ZMAGA)
             elif stanje == IGRALEC_2 or (self.igra.zgodovina[-1][1] == IGRALEC_2):
                 return (None, Minimax.ZMAGA)
             else:
                 assert False, "Napačno stanje"
+
+# Igre ni konec, iščemo potezo.
         elif stanje == NI_KONEC:
             if globina == 0:
+                # Prišli smo do konca rekurzije in moramo oceniti pozicijo.
                 return (None, self.vrednost_pozicije())
             else:
+                # Nismo še na koncu rekurzije.
                 poteze=self.igra.veljavne_poteze()
                 shuffle(poteze)
+
+                #MAKSIMIZIRAMO----------------------------------------------
                 if maksimiziramo:
                     najvecja_vrednost = -Minimax.NESKONCNO
                     najmanjsa_vrednost = Minimax.NESKONCNO
@@ -373,6 +393,7 @@ class Minimax():
                         if str(self.igra.zaporedje) in POZNANE_VREDNOSTI:
                             vrednost = -POZNANE_VREDNOSTI.get(str(self.igra.zaporedje))
                         else:
+                            # Rekurzivni klic:
                             vrednost = self.minimax(globina - 1, not maksimiziramo)[1]
                         if vrednost > najvecja_vrednost:
                             najvecja_vrednost=vrednost
@@ -381,11 +402,17 @@ class Minimax():
                             najmanjsa_vrednost=vrednost
                         self.igra.razveljavi()
                     if najmanjsa_vrednost == 1:
+                        # Pozicija je zmagovalna
                         POZNANE_VREDNOSTI[str(self.igra.zaporedje)]=1
                     if najvecja_vrednost == -1:
+                        # Pozicija je slaba
                         POZNANE_VREDNOSTI[str(self.igra.zaporedje)]=-1
+                    # Sproti novo ugotovljene vrednosti zapisujemo v slovar v datoteko
+                    # izven programa:
                     pickle.dump(POZNANE_VREDNOSTI, open("poznane_vrednosti.p", "wb"))
                     return (najboljsa_poteza, najvecja_vrednost)
+                
+                #MINIMIZIRAMO-------------------------------------------------
                 else:
                     najmanjsa_vrednost = Minimax.NESKONCNO
                     najboljsa_poteza = None
@@ -394,14 +421,17 @@ class Minimax():
                         if str(self.igra.zaporedje) in POZNANE_VREDNOSTI:
                             vrednost = POZNANE_VREDNOSTI.get(str(self.igra.zaporedje))
                         else:
+                            # Rekurzivni klic:
                             vrednost = self.minimax(globina - 1, not maksimiziramo)[1]
                         if vrednost < najmanjsa_vrednost:
                             najmanjsa_vrednost=vrednost
                             najboljsa_poteza=(i,j)
                         self.igra.razveljavi()
                     return (najboljsa_poteza, najmanjsa_vrednost)
+
+#Imamo napačno stanje:
         else:
-            assert False, "Minimax: Stanje je spet None :("
+            assert False, "Minimax: nepravilno stanje :("
                 
 
 #####################################################################################################################################
