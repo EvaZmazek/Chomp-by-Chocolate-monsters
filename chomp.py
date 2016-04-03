@@ -3,7 +3,6 @@ from random import *
 import threading
 import logging
 import pickle
-from PIL import ImageTk,Image
 
 #Konstante:
 SIRINA=7
@@ -240,6 +239,7 @@ class Rekurzija():
         self.prekinitev = False
 
     def izracunaj_potezo(self, igra):
+        """Funkcija ne vrača ničesar. Pripravi in nadzira nadaljevanje."""
         self.igra = igra
         self.prekinitev = False
         self.poteza = None
@@ -273,7 +273,7 @@ class Rekurzija():
         povej=self.izracunaj_rekurzivno(veljavne,zaporedje)
         return(povej)
         
-    def izracunaj1(self, veljavne,zaporedje):
+    def izracunaj_rekurzivno(self, veljavne,zaporedje):
         """"funkcija izračunaj1 preveri, če je polje 'L' oblike. Če je, igra 'simetrično', sicer se rekurzivno pokliče
         na polju brez prve vrstice in prvega stolpce"""
         if len(veljavne)>1:
@@ -303,11 +303,13 @@ class Rekurzija():
                 else:
                     x=resitev[0]
                     y=resitev[1]
-                    return (x+1,y+1)
+                    return (x+1,y+1) #(x,y) košček na polju brez prve vrstice in prvega stolpca,
+                                     #je (x+1,y+1) košček na originalnem polju
         else:
             return veljavne[0]
         
     def L_zaporedje(self,zaporedje):
+        """preuredi zaporedje v zaporedje brez prve vrstice in prvega stolpca"""
         novo=[]
         for i in zaporedje:
             if i>1:
@@ -315,6 +317,7 @@ class Rekurzija():
         return novo[1:]
         
     def L_seznam(self,seznam):
+        """preuredi seznam vrednosti v senam vrednosti brez prve vrstice in prvega stolpca"""
         novi=[]
         for i,j in seznam:
             if i!=0 and j!=0:
@@ -322,7 +325,7 @@ class Rekurzija():
         return novi
 
     def prekini(self):
-        self.prekinitev = Truef
+        self.prekinitev = True
         
 ######################################################################################
 ## Minimax:
@@ -372,7 +375,7 @@ rekurzivno, po algoritmu minimax."""
             elif stanje == IGRALEC_2 or (self.igra.zgodovina[-1][1] == IGRALEC_2):
                 return (None, Minimax.ZMAGA)
             else:
-                assert False, "Napačno stanje"
+                pass
 
 # Igre ni konec, iščemo potezo.
         elif stanje == NI_KONEC:
@@ -432,7 +435,7 @@ rekurzivno, po algoritmu minimax."""
 
 #Imamo napačno stanje:
         else:
-            assert False, "Minimax: nepravilno stanje :("
+            pass
                 
 
 #####################################################################################################################################
@@ -453,7 +456,7 @@ class Gui():
         #Podmenu za izbiro igre
         igra_menu = Menu(master)
         menu.add_cascade(label="Igra", menu=igra_menu)
-        igra_menu.add_command(label="2 igralca",command=lambda: self.nova_igra(Clovek(self))) # command mora bit funkcija
+        igra_menu.add_command(label="2 igralca",command=lambda: self.doloci_igralce(Clovek(self))) # command mora bit funkcija
         igra_menu.add_command(label="Proti racunalniku (easy)",command=lambda: self.doloci_igralce(Nakljucje))
         igra_menu.add_command(label="Proti racunalniku (medium)", command=lambda: self.doloci_igralce(Rekurzija))
         igra_menu.add_command(label="Proti racunalniku (hard)", command=lambda: self.doloci_igralce(Minimax))
@@ -590,13 +593,14 @@ na isti težavnosti kot prej"""
         return self.plosca.create_rectangle(15 + j*100, 55 + i*100, 105 + j*100, 145 + i*100, fill=barva)
 
     def doloci_igralce(self,Igralec2):
+        """funkcija, ki sprejme način igranja in v tem načinu požene igro"""
         if Igralec2==Nakljucje:
             igra=Racunalnik(self, Nakljucje(self))
         elif Igralec2==Rekurzija:
             igra=Racunalnik(self, Rekurzija(self))
         elif Igralec2==Minimax:
             igra=Racunalnik(self, Minimax(self))
-        else: assert False, "nekaj je šlo narobe"
+        else: igra=Clovek(self)
         self.tezavnost=Igralec2
         self.nova_igra(igra)
         
@@ -674,7 +678,10 @@ na isti težavnosti kot prej"""
 
     def koncno_okno(self,igralec):
         """funkcija, ki odpre končno okno, v katerem so podatki o uspešnosti v igri"""
-        napis= "Čestitam, zmagal/a si :)" if igralec == self.ime_1 else "Izgubil/a si. Več sreče prihodnjič"
+        if self.tezavnost==None or str(self.tezavnost)=="<class '__main__.Nakljucje'>" or str(self.tezavnost)=="<class '__main__.Rekurzija'>" or str(self.tezavnost)=="<class '__main__.Minimax'>":
+            napis= "Čestitam, zmagal/a si :)" if igralec == self.ime_1 else "Izgubil/a si. Več sreče prihodnjič"
+        else:
+            napis="zmagal je igralec " + str(igralec)
         
         self.konec = Toplevel()
         self.konec.title("Konec igre")
@@ -715,7 +722,7 @@ igre ali spremembi velikosti polja težavnost ostane enaka"""
         elif str(self.tezavnost) == "<class '__main__.Minimax'>":
             self.nova_igra(Racunalnik(self,Minimax(self)))
         else:
-            pass
+            self.nova_igra(Clovek(self))
 
 #####################################################
 ## Glavni program
