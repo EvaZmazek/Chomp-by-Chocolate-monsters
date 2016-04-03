@@ -60,9 +60,6 @@ class Igra():
             return NI_KONEC 
         else:
             return self.na_potezi
-            # Mogoče bo treba popravit v nasprotnika, če bo metoda
-            # povleci_potezo spremenila igralca, po tem ko bo potegnila
-            # potezo.
             
     def povleci_potezo(self, i, j):
         """Povleče potezo (i,j) oz. ne naredi nič, če ni veljavna.
@@ -450,8 +447,6 @@ class Gui():
 
         #nastavitev atributov
         self.tezavnost=None     #pomaga nam ob koncu igre, da ponovimo igro iste težavnosti
-        self.ime_1="1"          #nastavimo ime prvega igralca na "1"
-        self.ime_2="2"          #nastavimo ime drugega igralca na "2"
 
         #Podmenu za izbiro igre
         igra_menu = Menu(master)
@@ -644,10 +639,10 @@ na isti težavnosti kot prej"""
             self.pobrisi(i,j)
             if stanje == NI_KONEC: #tu ga še uporabiva
                 # Potezo ima naslednji igralec. To moramo povedati na zaslonu in klicati metodo, da bo igral.
-                if self.igra.na_potezi == self.ime_1:
+                if self.igra.na_potezi == IGRALEC_1:
                     self.napis.set("Na potezi je 1. igralec.")
                     self.igralec_1.igraj()
-                elif self.igra.na_potezi == self.ime_2:
+                elif self.igra.na_potezi == IGRALEC_2:
                     self.napis.set("Na potezi je 2. igralec.")
                     self.igralec_2.igraj()
             else:
@@ -671,7 +666,7 @@ na isti težavnosti kot prej"""
         """funkcija, ki preveri kdo je zmagovalec igre ter odpre končno okno o končani igri"""
         igralec=self.igra.nasprotnik(self.igra.zgodovina[-1][1])
         self.napis.set("Igre je konec. Zmagal je {0}. igralec".format(igralec))
-        if igralec == self.ime_1:
+        if igralec == IGRALEC_1:
             self.koncno_okno(igralec)
         else:
             self.koncno_okno(igralec)
@@ -679,7 +674,7 @@ na isti težavnosti kot prej"""
     def koncno_okno(self,igralec):
         """funkcija, ki odpre končno okno, v katerem so podatki o uspešnosti v igri"""
         if self.tezavnost==None or str(self.tezavnost)=="<class '__main__.Nakljucje'>" or str(self.tezavnost)=="<class '__main__.Rekurzija'>" or str(self.tezavnost)=="<class '__main__.Minimax'>":
-            napis= "Čestitam, zmagal/a si :)" if igralec == self.ime_1 else "Izgubil/a si. Več sreče prihodnjič"
+            napis= "Čestitam, zmagal/a si :)" if igralec == IGRALEC_1 else "Izgubil/a si. Več sreče prihodnjič"
         else:
             napis="zmagal je igralec " + str(igralec)
         
