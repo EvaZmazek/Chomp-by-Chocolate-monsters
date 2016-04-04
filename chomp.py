@@ -447,11 +447,12 @@ class Gui():
 
         #nastavitev atributov
         self.tezavnost=None     #pomaga nam ob koncu igre, da ponovimo igro iste težavnosti
+        self.clovek="clovek"
 
         #Podmenu za izbiro igre
         igra_menu = Menu(master)
         menu.add_cascade(label="Igra", menu=igra_menu)
-        igra_menu.add_command(label="2 igralca",command=lambda: self.doloci_igralce(Clovek(self))) # command mora bit funkcija
+        igra_menu.add_command(label="2 igralca",command=lambda: self.doloci_igralce(self.clovek)) # command mora bit funkcija
         igra_menu.add_command(label="Proti racunalniku (easy)",command=lambda: self.doloci_igralce(Nakljucje))
         igra_menu.add_command(label="Proti racunalniku (medium)", command=lambda: self.doloci_igralce(Rekurzija))
         igra_menu.add_command(label="Proti racunalniku (hard)", command=lambda: self.doloci_igralce(Minimax))
@@ -595,7 +596,8 @@ na isti težavnosti kot prej"""
             igra=Racunalnik(self, Rekurzija(self))
         elif Igralec2==Minimax:
             igra=Racunalnik(self, Minimax(self))
-        else: igra=Clovek(self)
+        else:
+            igra=Clovek(self)
         self.tezavnost=Igralec2
         self.nova_igra(igra)
         
