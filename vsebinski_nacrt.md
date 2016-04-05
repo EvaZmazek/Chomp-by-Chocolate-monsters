@@ -41,7 +41,14 @@ Druge datoteke: v programu slovar_zmagovalnih_in_slabih_potez.py generiramo neka
 Vsi razredi so v datoteki chomp.py, ker gre za preprosto aplikacijo.
 
 ####Razred GUI
-Razred, v katerem je definiran uporabniški vmesnik. Metode:    
+Razred, v katerem je definiran uporabniški vmesnik. Metode:  
+🎲 __init __(self, master): oblikuje glavno okno in vse njegove atribute  
+🎲 pripravi_plosco(self, master): naredimo polje za čokolado  
+🎲 spremeni_visino_in_sirino(self,master): pomozna funkcija, ki spremeni visino in sirino igralnega polja  
+🎲 visina_sirina(master): funkcija, ki spremeni višino in širine tako, da zapre prejšnjo okno in odpre novo
+na isti težavnosti kot prej  
+🎲 uredi_vnos(string): funkcija, ki preveri kaj smo napisali v polje in upošteva vnos le,
+če je to število med 1 in 15  
 🎲 nova_igra(self, Igralec_2, barva): začni igrati igro s človekom in danim drugim igralcem, kjer izbor drugega igralca pomeni tudi način igre (atribut barva potrebujemo pri risanju polja.)  
 🎲 koncaj_igro(self): končaj igro  
 🎲 povleci_potezo(self, i, j): povleci potezo (i,j)  
