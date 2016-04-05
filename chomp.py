@@ -515,7 +515,7 @@ class Gui():
         sirina.grid(row=3, column=2)                             # Pozicija polja za sirino
         sirina.insert(0, SIRINA)                                 # Privzeta sirina
 
-        Label(spremeni, text= "vneseš lahko vrednosti med 1 in 15", 
+        Label(spremeni, text= "Višina je lahko med 1 in 7, širina pa med 1 in 12.", 
         justify="left").grid(row=4, column=1, columnspan=4)
 
         # Gumba za začetek nove igre in preklic
@@ -530,14 +530,16 @@ na isti težavnosti kot prej"""
             global SIRINA
             visi=uredi_vnos(visina.get())
             siri=uredi_vnos(sirina.get())
-            if visi is not None:
+            if (visi is not None) and (visi <= 7) and (visi >= 1) and (siri >= 1) and (siri is not None) and (siri <= 12):
                 VISINA=visi
-            if siri is not None:
                 SIRINA=siri
-            self.plosca.destroy()
-            self.pripravi_plosco(master)
-            self.preveri(self.tezavnost)
-            spremeni.destroy()
+                self.plosca.destroy()
+                self.pripravi_plosco(master)
+                self.preveri(self.tezavnost)
+                spremeni.destroy()
+            else:
+                self.napis.set("Željeno polje je preveliko ali premajhno. Na potezi je {0}. igralec.".format(self.igra.na_potezi))
+                spremeni.destroy()
 
         def uredi_vnos(stringa):
             """funkcija, ki preveri kaj smo napisali v polje in upošteva vnos le,
