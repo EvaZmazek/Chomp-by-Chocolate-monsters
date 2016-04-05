@@ -22,6 +22,7 @@ POZNANE_VREDNOSTI = pickle.load( open( "poznane_vrednosti.p", "rb" ) )
 class Igra():
     
     def __init__(self):
+        """ Konstruktor objektov razreda Igra"""
         self.zaporedje=[VISINA for i in range(SIRINA)]
         #ustvarimo zaporedje, s pomočjo katerega vidimo, kateri koščki čokolade so še v igri
         self.na_potezi = IGRALEC_1      # Vedno igro odpre človek.
@@ -54,6 +55,7 @@ class Igra():
             - IGRALEC_1, če je igre konec in je zmagal IGRALEC_1 (uporabik)
             - IGRALEC_2, če je igre konec in je zmagal IGRALEC_2 (človek/računalnik)
             - NI_KONEC, če igre še ni konec
+            - KONEC - to potrebujemo za druge funkcije. Ta funkcija tega ne vrne.
         """
         if self.zaporedje[0]>0:
             # Nihče še ni pojedel t.i. zastrupljenega koščka.
@@ -74,7 +76,7 @@ class Igra():
             self.shrani_pozicijo()
             # Spremenimo self.zaporedje, ker povlečemo potezo in se pozicija
             # spremeni. Funkcija polepsaj zapiše pozicijo v ustrezni obliki.
-            novi=self.polepsaj(self.zaporedje, i, j)
+            novi=self.polepsaj(i,j)#self.zaporedje, i, j)
             self.zaporedje = novi
             stanje=self.stanje_igre()
             # Če še ni konec igre, moramo zamenjati igralca, ki je na vrsti,
@@ -90,14 +92,14 @@ class Igra():
         """Funkcija razveljavi potezo. Potrebuje jo minimax."""
         (self.zaporedje, self.na_potezi)=self.zgodovina.pop()
 
-    def polepsaj(self,zap, i, j):
+    def polepsaj(self, i, j):#,zap, i, j):
         """ Funkcija vrne zaporedje, kakor izgleda po tem ko potegnemo potezo
 (okrajša stolpce na višino i oz. jih pusti enake, če je i > trenutne višine).
 Pobriše tudi ničle s konca. """
         if (i,j) == (0,0):
             return [0]
         else:
-            novo = [x for x in zap]
+            novo = [x for x in self.zaporedje]
             for indeks in range(i, len(novo)):
                 stara_vr = novo[indeks]
                 novo[indeks] = min(stara_vr, j)
@@ -552,7 +554,7 @@ na isti težavnosti kot prej"""
         
     def pomoc(self):
 
-        # Ustvari okno z informacijami o igri.
+        """ Ustvari okno z informacijami o igri. """
         self.pomoc = Toplevel()
         self.pomoc.title("Navodila igre")
         self.pomoc.resizable(width=False, height=False)
@@ -631,7 +633,7 @@ na isti težavnosti kot prej"""
         pass
 
     def povleci_potezo(self, i, j):
-        #Povlečemo potezo v razredu Igra. Le-ta spremeni, kdo naredi potezo, zato si moramo to zapomniti na začetku.
+        """ Povlečemo potezo v razredu Igra. Le-ta spremeni, kdo naredi potezo, zato si moramo to zapomniti na začetku."""
         igralec = self.igra.na_potezi
         stanje = self.igra.povleci_potezo(i,j) # Ta metoda vrača stanje igre po potezi oz. None, če je neveljavna.
         if stanje is None:
@@ -701,11 +703,11 @@ na isti težavnosti kot prej"""
         gumb_ne.grid(row=3,column=2)
         
     def combine_funcs(self,*funcs):
-        #funkcija, zduži dve ali več funkcij v eno
-            def combined_func(*args, **kwargs):
-                for f in funcs:
-                    f(*args, **kwargs)
-            return combined_func
+        """ funkcija, zduži dve ali več funkcij v eno """
+        def combined_func(*args, **kwargs):
+            for f in funcs:
+                f(*args, **kwargs)
+        return combined_func
 
     def preveri(self,tezavnost):
         """preveri na kateri težavnosti igramo, da ob ponovitvi
@@ -720,6 +722,16 @@ igre ali spremembi velikosti polja težavnost ostane enaka"""
             self.nova_igra(Racunalnik(self,Minimax(self)))
         else:
             self.nova_igra(Clovek(self))
+
+    def zapri_okno(self, master):
+        """Ta metoda se pokliče, ko uporabnik zapre aplikacijo."""
+        # Vlaknom, ki tečejo vzporedno, je treba sporočiti, da morajo
+        # končati, sicer se bo okno zaprlo, aplikacija pa bo še vedno
+        # delovala.
+        if self.Igralec_2:
+            self.Igralec_2.prekini()
+        # Dejansko zapremo okno.
+        master.destroy()
 
 #####################################################
 ## Glavni program
