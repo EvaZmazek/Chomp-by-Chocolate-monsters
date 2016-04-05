@@ -1,24 +1,24 @@
-#Èasovni naèrt
+#ÄŒasovni naÄrt
 
 ##1. teden
 
-* Priprava èasovnega naèrta in urejanje repozitorija.
+* Priprava Äasovnega naÄrta in urejanje repozitorija.
 
 ##2. teden
 
-* Priprava podrobnejšega naèrta dela, programa in uporabniškega vmesnika.
+* Priprava podrobnejÅ¡ega naÄrta dela, programa in uporabniÅ¡kega vmesnika.
+
+##3. teden
+
 * Razvoj in testiranje igrice za dva igralca.
 
-##3. in 4. teden
+##4. in 5. teden
 
-* Programiranje algoritma za poteze raèunalnika.
-Predvidenih je veè teavnosti, ki bodo odvisne od velikosti polj in od algoritma.
-
-##5. teden
-
-* Dokumentacija in lepšanje kode.
+* Programiranje algoritma za poteze raÄunalnika.
+Predvidenih je veÄ teÅ¾avnosti, ki bodo odvisne od velikosti polj in od algoritma.
 
 ##6. teden
 
 * Zadnji popravki.
+* Dokumentacija in lepÅ¡anje kode.
 * Priprava na zagovor.
